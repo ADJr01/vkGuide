@@ -81,7 +81,6 @@ void RenderV::createVulkanInstance() {
     if (vkCreateInstance(&vk_info,nullptr,&this->Instance) != VK_SUCCESS) {
         throw std::runtime_error("failed to create Vulkan instance");
     }
-    std::cout << "Instance created" << std::endl;
 
 
 }
