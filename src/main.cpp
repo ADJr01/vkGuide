@@ -5,7 +5,7 @@
 
 GLFWwindow* Window;
 RenderV renderV;
-void inittWindow(std::string title="Test Window",int width=800,int height=600) {
+void initWindow(std::string title="Test Window",int width=800,int height=600) {
     if (!glfwInit()) {
         throw std::runtime_error("GLFW initialization failed");
         return;
@@ -17,10 +17,8 @@ void inittWindow(std::string title="Test Window",int width=800,int height=600) {
 }
 int main() {
     try {
-        inittWindow();
+        initWindow("Hello Window",800,600);
         if (renderV.init(Window) == EXIT_FAILURE) {
-            glfwDestroyWindow(Window);
-            glfwTerminate();
             return EXIT_FAILURE;
         }
 

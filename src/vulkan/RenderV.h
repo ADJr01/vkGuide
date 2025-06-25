@@ -15,11 +15,14 @@ private:
     GLFWwindow* Window;
     //vulkan Components
     VkInstance Instance;
-    //vulkan functions
+//! vulkan functions
+    // ? Create Functions
     void createVulkanInstance();
-
+    VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
+    // ? Support Functions
+    bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
 public:
-        RenderV();
+        RenderV()=default;
         ~RenderV();
         int init(GLFWwindow* window);
 
