@@ -15,8 +15,6 @@ RenderV::~RenderV() {
     vkDestroyInstance(this->Instance, nullptr);
 }
 
-
-
 VkApplicationInfo RenderV::getAppInfo(std::string appName, std::string engineName) {
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -50,9 +48,6 @@ bool RenderV::checkInstanceExtensionSupport(const std::vector<const char*>* inpu
 
     return true;
 }
-
-
-
 void RenderV::createVulkanInstance() {
     // extensions count instance
     uint32_t extensionCount = 0;
@@ -82,8 +77,17 @@ void RenderV::createVulkanInstance() {
         throw std::runtime_error("failed to create Vulkan instance");
     }
 
+    this->getPhysicalDevice();
+
 
 }
+
+void RenderV::getPhysicalDevice() {
+    uint32_t physicalDeviceCount = 0;
+    vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,nullptr);
+    std::cout<<"Total Physical Devices: "<<physicalDeviceCount<<std::endl;
+}
+
 
 
 

@@ -15,10 +15,16 @@ private:
     GLFWwindow* Window;
     //vulkan Components
     VkInstance Instance;
+    struct {
+        VkPhysicalDevice physicalDevice;
+        VkDevice logicalDevice;
+    } Device;
 //! vulkan functions
     // ? Create Functions
     void createVulkanInstance();
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
+    void getPhysicalDevice();
+
     // ? Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
 public:
