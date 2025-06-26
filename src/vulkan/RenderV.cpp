@@ -11,9 +11,7 @@
 #include <iostream>
 
 
-RenderV::~RenderV() {
-    vkDestroyInstance(this->Instance, nullptr);
-}
+
 
 VkApplicationInfo RenderV::getAppInfo(std::string appName, std::string engineName) {
     VkApplicationInfo appInfo = {};
@@ -48,10 +46,29 @@ bool RenderV::checkInstanceExtensionSupport(const std::vector<const char*>* inpu
 
     return true;
 }
+
+QueueFamilyIndices RenderV::getQueueFamilies(VkPhysicalDevice& device) {
+    QueueFamilyIndices Indices;
+    uint32_t totalQueueFamilySupport = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device,&totalQueueFamilySupport,nullptr);//! get queue family support in any specefic physical device
+    if (totalQueueFamilySupport<1) throw std::runtime_error("Device Don't support any Queue Family");
+    auto queueFamilyList = std::vector<VkQueueFamilyProperties>(totalQueueFamilySupport);
+    vkGetPhysicalDeviceQueueFamilyProperties(device,&totalQueueFamilySupport,queueFamilyList.data());
+    for (uint8_t i=0;i<queueFamilyList.capacity();i++) {
+        const auto queueFamily = queueFamilyList[i];
+        if (queueFamily.queueCount> 0  && queueFamily.queueFlags == VK_QUEUE_GRAPHICS_BIT) {
+            Indices.graphicsFamily = i;
+        }
+    }
+
+}
+
+
 void RenderV::createVulkanInstance() {
     // extensions count instance
     uint32_t extensionCount = 0;
-    const char** extensions= glfwGetRequiredInstanceExtensions(&extensionCount);
+    const char** extensions= glfwGetRequiredInstanceExtensions(&extensionCount);//If Vulkan is not available on the machine, this function returns NULL
+    if (extensions==nullptr) throw std::runtime_error("GLFW API Unavailable Error");
     // Info about Application
     VkApplicationInfo appInfo = this->getAppInfo("Hello Vulkan","n/a");
     // Info about Vulkan Instance
@@ -85,7 +102,10 @@ void RenderV::createVulkanInstance() {
 void RenderV::getPhysicalDevice() {
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,nullptr);
-    std::cout<<"Total Physical Devices: "<<physicalDeviceCount<<std::endl;
+    if (physicalDeviceCount<1)throw std::runtime_error("Could not detect any physical device");// ! if no device found
+    auto physicalDevices = std::vector<VkPhysicalDevice>(physicalDeviceCount);
+    vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,physicalDevices.data());
+    this->Device.physicalDevice = physicalDevices[0];
 }
 
 
@@ -102,5 +122,10 @@ int RenderV::init(GLFWwindow *window) {
     }
 
     return EXIT_SUCCESS;
+}
+
+
+RenderV::~RenderV() {
+    vkDestroyInstance(this->Instance, nullptr);
 }
 

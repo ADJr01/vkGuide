@@ -12,7 +12,8 @@ find_package(Vulkan REQUIRED)      # Required for Vulkan
 
 add_executable(vkGuide src/main.cpp
         src/vulkan/RenderV.cpp
-        src/vulkan/RenderV.h)
+        src/vulkan/RenderV.h
+        RenderVUtil.h)
 
 target_link_libraries(vkGuide PRIVATE
         PkgConfig::GLEW

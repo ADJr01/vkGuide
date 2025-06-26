@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "../../RenderVUtil.h"
+
 
 class RenderV {
 private:
@@ -22,11 +24,17 @@ private:
 //! vulkan functions
     // ? Create Functions
     void createVulkanInstance();
+
+    // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
+    QueueFamilyIndices getQueueFamilies(VkPhysicalDevice& device); // ? for parsing queue families from any physical device
+    // ? setters
+
 
     // ? Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
+    bool checkDeviceInfo(VkPhysicalDevice physicalDevice);
 public:
         RenderV()=default;
         ~RenderV();
