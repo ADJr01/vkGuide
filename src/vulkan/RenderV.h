@@ -34,7 +34,7 @@ private:
 
     // ? Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
-    bool checkDeviceInfo(VkPhysicalDevice physicalDevice);
+    bool checkDeviceSuitability(VkPhysicalDevice physicalDevice);
 public:
         RenderV()=default;
         ~RenderV();

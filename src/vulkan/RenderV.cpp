@@ -56,12 +56,22 @@ QueueFamilyIndices RenderV::getQueueFamilies(VkPhysicalDevice& device) {
     vkGetPhysicalDeviceQueueFamilyProperties(device,&totalQueueFamilySupport,queueFamilyList.data());
     for (uint8_t i=0;i<queueFamilyList.capacity();i++) {
         const auto queueFamily = queueFamilyList[i];
-        if (queueFamily.queueCount> 0  && queueFamily.queueFlags == VK_QUEUE_GRAPHICS_BIT) {
+        //? checking if queue family has at least one queue then checking if  first byte of queueFlags binary is 1 using bit manipulation
+        if (queueFamily.queueCount> 0  && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             Indices.graphicsFamily = i;
+            if (Indices.isValidGraphicsFamily())break;
         }
     }
 
+    return Indices;
 }
+
+bool RenderV::checkDeviceSuitability(VkPhysicalDevice physicalDevice) {
+     auto indecies = this->getQueueFamilies(physicalDevice);
+    if (!indecies.isValidGraphicsFamily())return false;
+    return true;
+}
+
 
 
 void RenderV::createVulkanInstance() {
@@ -105,7 +115,13 @@ void RenderV::getPhysicalDevice() {
     if (physicalDeviceCount<1)throw std::runtime_error("Could not detect any physical device");// ! if no device found
     auto physicalDevices = std::vector<VkPhysicalDevice>(physicalDeviceCount);
     vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,physicalDevices.data());
-    this->Device.physicalDevice = physicalDevices[0];
+    for (auto &physical_device: physicalDevices) {
+        if (this->checkDeviceSuitability(physical_device)) {
+            this->Device.physicalDevice = physical_device;
+            std::cout<<"Compatible Physical Device Found\n";
+            break;
+        }
+    }
 }
 
 
