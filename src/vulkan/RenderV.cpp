@@ -20,7 +20,7 @@ VkApplicationInfo RenderV::getAppInfo(std::string appName, std::string engineNam
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = std::move(engineName).c_str();
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_2;
     return appInfo;
 }
 
@@ -46,6 +46,22 @@ bool RenderV::checkInstanceExtensionSupport(const std::vector<const char*>* inpu
 
     return true;
 }
+bool RenderV::checkValidationLayerSupport() const {
+    uint32_t validation_layer_count = 0;
+    vkEnumerateInstanceLayerProperties(&validation_layer_count, nullptr);
+    if (validation_layer_count<1)return false;
+    std:: vector<VkLayerProperties> available_layers(validation_layer_count);
+    vkEnumerateInstanceLayerProperties(&validation_layer_count, available_layers.data());
+    for (const auto &current_layer: this->validation_layers) {
+        for (const auto &layer:available_layers) {
+            if (strcmp(current_layer,layer.layerName)==0)return true;
+        }
+    }
+    return false;
+
+}
+
+
 
 QueueFamilyIndices RenderV::getQueueFamilies(VkPhysicalDevice& device) {
     QueueFamilyIndices Indices;
@@ -95,19 +111,60 @@ void RenderV::createVulkanInstance() {
         throw std::runtime_error("VkInstance doesn't support Required Extensions.");
 
     }
-    //!Validation Layers (for the time being we're skipping it)
-    vk_info.enabledLayerCount = 0;
-    vk_info.ppEnabledLayerNames = nullptr;
+    if (this->checkValidationLayerSupport()) {
+        vk_info.enabledLayerCount = static_cast<uint32_t>(this->validation_layers.size());
+        vk_info.ppEnabledLayerNames = this->validation_layers.data();
+        std::cout<<"Validation Layer Attachet"<<std::endl;
+    }else {
+        std::cerr<<"Validation Layer Not Supported"<<std::endl;
+    }
+
 
     //create Instance
     if (vkCreateInstance(&vk_info,nullptr,&this->Instance) != VK_SUCCESS) {
         throw std::runtime_error("failed to create Vulkan instance");
     }
 
-    this->getPhysicalDevice();
+
 
 
 }
+
+void RenderV::createLogicalDevice() {
+    //? Get Queue Families From our chosen physical device
+    const float HIGHEST_PRIORITY = 1.0;
+    //physical device features for logical device to use
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+    deviceFeatures.shaderFloat64 = true;
+
+    QueueFamilyIndices indices = this->getQueueFamilies(this->Device.physicalDevice);
+    if (!indices.isValidGraphicsFamily()) throw std::runtime_error("Device doesn't support Required Queue Family");
+    //queues that logical device need to create.queue create info
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily; //? index of graphics family to create queue from
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities=&HIGHEST_PRIORITY; //! QUEUE priority must be between 0.0 and 1.0
+
+    //?info to create logical device
+    VkDeviceCreateInfo logicalDeviceCreateInfo = {};
+    logicalDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    logicalDeviceCreateInfo.queueCreateInfoCount = 1; // number of queues to create
+    logicalDeviceCreateInfo.pQueueCreateInfos = &queueCreateInfo; //queue create infos for logical device to use queues
+    logicalDeviceCreateInfo.enabledExtensionCount = 0; // we dont need it for device
+    logicalDeviceCreateInfo.ppEnabledExtensionNames = nullptr; // we're not using any extensions for our logical device
+    logicalDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+    //creating logical device
+    if (vkCreateDevice(this->Device.physicalDevice,&logicalDeviceCreateInfo,nullptr,&this->Device.logicalDevice)!=VK_SUCCESS) {
+        throw std::runtime_error("failed to create logical device");
+    }
+    //? if we're here that's mean logical device creation successfully
+    // ? now we can get the queue created by logical device
+    vkGetDeviceQueue(this->Device.logicalDevice,indices.graphicsFamily/*! as we're using graphics family*/,0/*?very first queue*/,&this->graphicsQueue);
+
+}
+
+
 
 void RenderV::getPhysicalDevice() {
     uint32_t physicalDeviceCount = 0;
@@ -131,6 +188,8 @@ int RenderV::init(GLFWwindow *window) {
     try {
         this->Window = window;
         this->createVulkanInstance();
+        this->getPhysicalDevice();
+        this->createLogicalDevice();
     }catch (const std::runtime_error &e) {
         const auto errorMessage = e.what();
         std::cerr<<"Runtimer Error: "<< errorMessage << std::endl;
@@ -142,6 +201,13 @@ int RenderV::init(GLFWwindow *window) {
 
 
 RenderV::~RenderV() {
-    vkDestroyInstance(this->Instance, nullptr);
+    //vkDestroyDevice(this->Device.logicalDevice,nullptr);
+    //vkDestroyInstance(this->Instance, nullptr);
+    if (this->Device.logicalDevice!=VK_NULL_HANDLE) {
+        vkDestroyDevice(this->Device.logicalDevice, nullptr);
+    }
+    if (this->Instance!=VK_NULL_HANDLE) {
+        vkDestroyInstance(this->Instance, nullptr);
+    }
 }
 
