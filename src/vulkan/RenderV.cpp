@@ -103,30 +103,30 @@ void RenderV::createVulkanInstance() {
     vk_info.pApplicationInfo = &appInfo;
 
     std::vector<const char*> extension_list(extensions, extensions + extensionCount);
-    //set  extensions
-    vk_info.enabledExtensionCount = static_cast<uint32_t>(extension_list.size());
-    vk_info.ppEnabledExtensionNames = extension_list.data();
+    extension_list.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
     //check all extension if supported
     if (!this->checkInstanceExtensionSupport(&extension_list)) {
         throw std::runtime_error("VkInstance doesn't support Required Extensions.");
-
     }
+    //set  extensions
+    vk_info.enabledExtensionCount = static_cast<uint32_t>(extension_list.size());
+    vk_info.ppEnabledExtensionNames = extension_list.data();
+
     if (this->checkValidationLayerSupport()) {
         vk_info.enabledLayerCount = static_cast<uint32_t>(this->validation_layers.size());
         vk_info.ppEnabledLayerNames = this->validation_layers.data();
-        std::cout<<"Validation Layer Attachet"<<std::endl;
     }else {
+        vk_info.enabledLayerCount = static_cast<uint32_t>(0);
+        vk_info.ppEnabledLayerNames = nullptr;
         std::cerr<<"Validation Layer Not Supported"<<std::endl;
     }
 
 
     //create Instance
-    if (vkCreateInstance(&vk_info,nullptr,&this->Instance) != VK_SUCCESS) {
+    if (vkCreateInstance(&vk_info,nullptr,&this->Context.Instance) != VK_SUCCESS) {
         throw std::runtime_error("failed to create Vulkan instance");
     }
-
-
-
 
 }
 
@@ -137,7 +137,7 @@ void RenderV::createLogicalDevice() {
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceFeatures.shaderFloat64 = true;
 
-    QueueFamilyIndices indices = this->getQueueFamilies(this->Device.physicalDevice);
+    QueueFamilyIndices indices = this->getQueueFamilies(this->Context.Device.physicalDevice);
     if (!indices.isValidGraphicsFamily()) throw std::runtime_error("Device doesn't support Required Queue Family");
     //queues that logical device need to create.queue create info
     VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -155,12 +155,12 @@ void RenderV::createLogicalDevice() {
     logicalDeviceCreateInfo.ppEnabledExtensionNames = nullptr; // we're not using any extensions for our logical device
     logicalDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     //creating logical device
-    if (vkCreateDevice(this->Device.physicalDevice,&logicalDeviceCreateInfo,nullptr,&this->Device.logicalDevice)!=VK_SUCCESS) {
+    if (vkCreateDevice(this->Context.Device.physicalDevice,&logicalDeviceCreateInfo,nullptr,&this->Context.Device.logicalDevice)!=VK_SUCCESS) {
         throw std::runtime_error("failed to create logical device");
     }
     //? if we're here that's mean logical device creation successfully
     // ? now we can get the queue created by logical device
-    vkGetDeviceQueue(this->Device.logicalDevice,indices.graphicsFamily/*! as we're using graphics family*/,0/*?very first queue*/,&this->graphicsQueue);
+    vkGetDeviceQueue(this->Context.Device.logicalDevice,indices.graphicsFamily/*! as we're using graphics family*/,0/*?very first queue*/,&this->graphicsQueue);
 
 }
 
@@ -168,17 +168,23 @@ void RenderV::createLogicalDevice() {
 
 void RenderV::getPhysicalDevice() {
     uint32_t physicalDeviceCount = 0;
-    vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,nullptr);
+    vkEnumeratePhysicalDevices(this->Context.Instance,&physicalDeviceCount,nullptr);
     if (physicalDeviceCount<1)throw std::runtime_error("Could not detect any physical device");// ! if no device found
     auto physicalDevices = std::vector<VkPhysicalDevice>(physicalDeviceCount);
-    vkEnumeratePhysicalDevices(this->Instance,&physicalDeviceCount,physicalDevices.data());
+    vkEnumeratePhysicalDevices(this->Context.Instance,&physicalDeviceCount,physicalDevices.data());
     for (auto &physical_device: physicalDevices) {
         if (this->checkDeviceSuitability(physical_device)) {
-            this->Device.physicalDevice = physical_device;
-            std::cout<<"Compatible Physical Device Found\n";
+            this->Context.Device.physicalDevice = physical_device;
             break;
         }
     }
+}
+
+void RenderV::setupDebugMessenger() {
+    VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
+    debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    // TODO Setup debug messenger
 }
 
 
@@ -201,13 +207,7 @@ int RenderV::init(GLFWwindow *window) {
 
 
 RenderV::~RenderV() {
-    //vkDestroyDevice(this->Device.logicalDevice,nullptr);
-    //vkDestroyInstance(this->Instance, nullptr);
-    if (this->Device.logicalDevice!=VK_NULL_HANDLE) {
-        vkDestroyDevice(this->Device.logicalDevice, nullptr);
-    }
-    if (this->Instance!=VK_NULL_HANDLE) {
-        vkDestroyInstance(this->Instance, nullptr);
-    }
+    if (this->Context.Device.logicalDevice!=VK_NULL_HANDLE) vkDestroyDevice(this->Context.Device.logicalDevice, nullptr);
+    if (this->Context.Instance!=VK_NULL_HANDLE) vkDestroyInstance(this->Context.Instance, nullptr);
 }
 
