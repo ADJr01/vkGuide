@@ -11,10 +11,10 @@ find_package(OpenGL REQUIRED)      # Optional, if using OpenGL
 find_package(Vulkan REQUIRED)      # Required for Vulkan
 
 add_executable(vkGuide src/main.cpp
-        src/vulkan/RenderV.cpp
-        src/vulkan/RenderV.h
-        src/vulkan/RenderVUtil.h
-        src/vulkan/Helper.h)
+        src/vulkankit/RenderV.cpp
+        src/vulkankit/RenderV.h
+        src/vulkankit/RenderVUtil.h
+        src/vulkankit/Helper.h)
 
 target_link_libraries(vkGuide PRIVATE
         PkgConfig::GLEW

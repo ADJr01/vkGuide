@@ -88,6 +88,16 @@ bool RenderV::checkDeviceSuitability(VkPhysicalDevice physicalDevice) {
     return true;
 }
 
+void RenderV::checkPhysicalDeviceInfo(VkPhysicalDevice& device) {
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(device,&properties);
+    std::cout<<"Device Name: "<<properties.deviceName<<std::endl;
+    std::cout<<"Device Type: "<<properties.deviceType<<std::endl;
+    std::cout<<"Driver Version: "<<properties.driverVersion<<std::endl;
+    std::cout<<"Vendor ID: "<<properties.vendorID<<std::endl;
+}
+
+
 
 
 void RenderV::createVulkanInstance() {
@@ -119,9 +129,7 @@ void RenderV::createVulkanInstance() {
     }else {
         vk_info.enabledLayerCount = static_cast<uint32_t>(0);
         vk_info.ppEnabledLayerNames = nullptr;
-        std::cerr<<"Validation Layer Not Supported"<<std::endl;
     }
-
 
     //create Instance
     if (vkCreateInstance(&vk_info,nullptr,&this->Context.Instance) != VK_SUCCESS) {
@@ -174,6 +182,7 @@ void RenderV::getPhysicalDevice() {
     vkEnumeratePhysicalDevices(this->Context.Instance,&physicalDeviceCount,physicalDevices.data());
     for (auto &physical_device: physicalDevices) {
         if (this->checkDeviceSuitability(physical_device)) {
+            this->checkPhysicalDeviceInfo(physical_device);
             this->Context.Device.physicalDevice = physical_device;
             break;
         }
@@ -183,8 +192,12 @@ void RenderV::getPhysicalDevice() {
 void RenderV::setupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
     debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugMessengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugMessengerCreateInfo.messageSeverity =  VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    debugMessengerCreateInfo.pfnUserCallback = this->debugCallBack;
+    debugMessengerCreateInfo.pUserData = nullptr;
     // TODO Setup debug messenger
+
 }
 
 

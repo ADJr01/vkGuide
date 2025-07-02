@@ -9,7 +9,6 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
-
 #include "Helper.h"
 #include "RenderVUtil.h"
 
@@ -38,6 +37,7 @@ private:
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
     bool checkDeviceSuitability(VkPhysicalDevice physicalDevice);
     bool checkValidationLayerSupport() const; // we will check if validation layer is supported
+    void checkPhysicalDeviceInfo(VkPhysicalDevice &device);
 
     //! Error Callback Function for Vulkan to use
     static VKAPI_ATTR VkBool32 VKAPI_CALL
