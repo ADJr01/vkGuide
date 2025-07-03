@@ -20,8 +20,13 @@ typedef struct {
 
 struct QueueFamilyIndices {
     int graphicsFamily = -1;
+    int presentFamily = -1;
     bool isValidGraphicsFamily() {
         return graphicsFamily >=0;
+    }
+
+    bool isValidPresentFamily() {
+        return presentFamily >=0;
     }
 };
 

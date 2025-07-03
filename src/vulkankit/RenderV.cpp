@@ -46,20 +46,6 @@ bool RenderV::checkInstanceExtensionSupport(const std::vector<const char*>* inpu
 
     return true;
 }
-bool RenderV::checkValidationLayerSupport() const {
-    uint32_t validation_layer_count = 0;
-    vkEnumerateInstanceLayerProperties(&validation_layer_count, nullptr);
-    if (validation_layer_count<1)return false;
-    std:: vector<VkLayerProperties> available_layers(validation_layer_count);
-    vkEnumerateInstanceLayerProperties(&validation_layer_count, available_layers.data());
-    for (const auto &current_layer: this->validation_layers) {
-        for (const auto &layer:available_layers) {
-            if (strcmp(current_layer,layer.layerName)==0)return true;
-        }
-    }
-    return false;
-
-}
 
 
 
@@ -122,14 +108,9 @@ void RenderV::createVulkanInstance() {
     //set  extensions
     vk_info.enabledExtensionCount = static_cast<uint32_t>(extension_list.size());
     vk_info.ppEnabledExtensionNames = extension_list.data();
+    vk_info.enabledLayerCount = static_cast<uint32_t>(0);
+    vk_info.ppEnabledLayerNames = nullptr;
 
-    if (this->checkValidationLayerSupport()) {
-        vk_info.enabledLayerCount = static_cast<uint32_t>(this->validation_layers.size());
-        vk_info.ppEnabledLayerNames = this->validation_layers.data();
-    }else {
-        vk_info.enabledLayerCount = static_cast<uint32_t>(0);
-        vk_info.ppEnabledLayerNames = nullptr;
-    }
 
     //create Instance
     if (vkCreateInstance(&vk_info,nullptr,&this->Context.Instance) != VK_SUCCESS) {
@@ -137,6 +118,11 @@ void RenderV::createVulkanInstance() {
     }
 
 }
+
+void RenderV::createSurface() {
+
+}
+
 
 void RenderV::createLogicalDevice() {
     //? Get Queue Families From our chosen physical device
@@ -207,6 +193,7 @@ int RenderV::init(GLFWwindow *window) {
     try {
         this->Window = window;
         this->createVulkanInstance();
+        this->createSurface();
         this->getPhysicalDevice();
         this->createLogicalDevice();
     }catch (const std::runtime_error &e) {

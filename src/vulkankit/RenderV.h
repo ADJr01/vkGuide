@@ -19,6 +19,8 @@ private:
     GLFWwindow* Window;
     //vulkan Components
     VkContext Context;
+    VkQueue  graphicsQueue; //? To store graphics queue created by logical device
+    VkSurfaceKHR surface;
     std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -26,17 +28,16 @@ private:
     // ? Create Functions
     void createVulkanInstance();
     void createLogicalDevice();
+    void createSurface();
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice& device); // ? for parsing queue families from any physical device
     // ? setters
-    VkQueue  graphicsQueue; //? To store graphics queue created by logical device
     void setupDebugMessenger();
     // ? Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
     bool checkDeviceSuitability(VkPhysicalDevice physicalDevice);
-    bool checkValidationLayerSupport() const; // we will check if validation layer is supported
     void checkPhysicalDeviceInfo(VkPhysicalDevice &device);
 
     //! Error Callback Function for Vulkan to use
