@@ -30,6 +30,12 @@ struct QueueFamilyIndices {
     }
 };
 
+typedef struct {
+    VkSurfaceCapabilitiesKHR surfaceCapabilities; //?surface properties, image size, extents etc
+    std::vector<VkSurfaceFormatKHR> surfaceFormats; //surface image formats, R8G8B8A8_UNORM
+    std::vector<VkPresentModeKHR> presentationModes; // presentation mode...way of Display and SwapChain Synchronization
+}SwapChainInfo;
+
 
 
 #endif //RENDERVUTIL_H

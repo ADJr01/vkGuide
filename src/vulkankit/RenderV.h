@@ -38,6 +38,7 @@ private:
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice& device); // ? for parsing queue families from any physical device
+    SwapChainInfo getSwapChainInfo(VkPhysicalDevice device) const;
     // ? setters
     void setupDebugMessenger();
     // ? Check Support Functions

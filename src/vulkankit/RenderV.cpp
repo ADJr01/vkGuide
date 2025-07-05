@@ -78,7 +78,9 @@ QueueFamilyIndices RenderV::getQueueFamilies(VkPhysicalDevice& device) {
 //* checking device suitability
 bool RenderV::checkDeviceSuitability(VkPhysicalDevice physicalDevice) {
      auto indecies = this->getQueueFamilies(physicalDevice);
-     return indecies.isValidGraphicsFamily() && this->checkDeviceExtensionSupport(physicalDevice);
+    if (!this->checkDeviceExtensionSupport(physicalDevice)) return false;
+     const SwapChainInfo swapChainInfo = this->getSwapChainInfo(physicalDevice);
+     return indecies.isValidGraphicsFamily() &&  !swapChainInfo.presentationModes.empty() && !swapChainInfo.surfaceFormats.empty();
 }
 
 //* checking device extension support
@@ -209,6 +211,31 @@ void RenderV::getPhysicalDevice() {
     }
 }
 
+SwapChainInfo RenderV::getSwapChainInfo(VkPhysicalDevice device) const {
+    SwapChainInfo swapChainInfo = {};
+    //? getting surface capabilities from physical device
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device,this->surface,&swapChainInfo.surfaceCapabilities);
+
+    //? getting formats
+    uint32_t formatCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device,this->surface,&formatCount,nullptr);
+    if (formatCount<1) throw std::runtime_error("failed to get required surface formats");
+    swapChainInfo.surfaceFormats.resize(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device,this->surface,&formatCount,swapChainInfo.surfaceFormats.data());
+    //?Presentation Mode
+    uint32_t presentModeCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device,this->surface,&presentModeCount,nullptr);
+    if (presentModeCount<1) throw std::runtime_error("failed to get required presentation modes");
+    swapChainInfo.presentationModes.resize(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device,this->surface,&presentModeCount,swapChainInfo.presentationModes.data());
+
+
+    return swapChainInfo;
+}
+
+
+
+
 void RenderV::setupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
     debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -238,6 +265,8 @@ int RenderV::init(GLFWwindow *window) {
 
     return EXIT_SUCCESS;
 }
+
+
 
 
 RenderV::~RenderV() {
