@@ -60,19 +60,47 @@ QueueFamilyIndices RenderV::getQueueFamilies(VkPhysicalDevice& device) {
         const auto queueFamily = queueFamilyList[i];
         //? checking if queue family has at least one queue then checking if  first byte of queueFlags binary is 1 using bit manipulation
         if (queueFamily.queueCount> 0  && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            VkBool32 does_support_presentation = VK_FALSE;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device,i,this->surface,&does_support_presentation);
+            if (does_support_presentation!=VK_TRUE) {
+                std::cerr << "Queue family does not support presentation!" << std::endl;
+                throw std::runtime_error("Queue family does not support presentation!");
+            }
+            Indices.presentFamily = i;
             Indices.graphicsFamily = i;
-            if (Indices.isValidGraphicsFamily())break;
+            if (Indices.isValidGraphicsFamily() && Indices.isValidPresentFamily())break;
         }
     }
 
     return Indices;
 }
 
+//* checking device suitability
 bool RenderV::checkDeviceSuitability(VkPhysicalDevice physicalDevice) {
      auto indecies = this->getQueueFamilies(physicalDevice);
-    if (!indecies.isValidGraphicsFamily())return false;
+     return indecies.isValidGraphicsFamily() && this->checkDeviceExtensionSupport(physicalDevice);
+}
+
+//* checking device extension support
+bool RenderV::checkDeviceExtensionSupport(VkPhysicalDevice &device) {
+    uint32_t ext_count = 0;
+    vkEnumerateDeviceExtensionProperties(device,nullptr,&ext_count,nullptr);
+    if (ext_count<0)throw std::runtime_error("Device extension not found!");
+    std::vector<VkExtensionProperties> extensionHolder = std::vector<VkExtensionProperties>(ext_count);
+    vkEnumerateDeviceExtensionProperties(device,nullptr,&ext_count,extensionHolder.data());
+    for (const auto &ext:this->deviceExtensions) {
+        auto found = false;
+        for (const auto &available_ext:extensionHolder) {
+            if (strcmp(available_ext.extensionName,ext)==0) {
+                found=true;
+                break;
+            }
+        }
+        if (!found) return false;
+    }
     return true;
 }
+
 
 void RenderV::checkPhysicalDeviceInfo(VkPhysicalDevice& device) {
     VkPhysicalDeviceProperties properties;
@@ -120,6 +148,10 @@ void RenderV::createVulkanInstance() {
 }
 
 void RenderV::createSurface() {
+    // glfw handling window creation and initializing surface which will be used by swapchain later
+    if (glfwCreateWindowSurface(this->Context.Instance,this->Window,nullptr,&this->surface)!=VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface");
+    }
 
 }
 
@@ -145,8 +177,8 @@ void RenderV::createLogicalDevice() {
     logicalDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     logicalDeviceCreateInfo.queueCreateInfoCount = 1; // number of queues to create
     logicalDeviceCreateInfo.pQueueCreateInfos = &queueCreateInfo; //queue create infos for logical device to use queues
-    logicalDeviceCreateInfo.enabledExtensionCount = 0; // we dont need it for device
-    logicalDeviceCreateInfo.ppEnabledExtensionNames = nullptr; // we're not using any extensions for our logical device
+    logicalDeviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(this->deviceExtensions.size()); // we dont need it for device
+    logicalDeviceCreateInfo.ppEnabledExtensionNames = this->deviceExtensions.data(); // we're not using any extensions for our logical device
     logicalDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
     //creating logical device
     if (vkCreateDevice(this->Context.Device.physicalDevice,&logicalDeviceCreateInfo,nullptr,&this->Context.Device.logicalDevice)!=VK_SUCCESS) {
@@ -154,7 +186,9 @@ void RenderV::createLogicalDevice() {
     }
     //? if we're here that's mean logical device creation successfully
     // ? now we can get the queue created by logical device
-    vkGetDeviceQueue(this->Context.Device.logicalDevice,indices.graphicsFamily/*! as we're using graphics family*/,0/*?very first queue*/,&this->graphicsQueue);
+    vkGetDeviceQueue(this->Context.Device.logicalDevice,indices.graphicsFamily,0,&this->graphicsQueue);
+    // ? setting up presentation family which will work as interface between display and swapchain
+    vkGetDeviceQueue(this->Context.Device.logicalDevice,indices.presentFamily,0,&this->presentationQueue);
 
 }
 
@@ -207,6 +241,7 @@ int RenderV::init(GLFWwindow *window) {
 
 
 RenderV::~RenderV() {
+    vkDestroySurfaceKHR(this->Context.Instance,this->surface,nullptr);
     if (this->Context.Device.logicalDevice!=VK_NULL_HANDLE) vkDestroyDevice(this->Context.Device.logicalDevice, nullptr);
     if (this->Context.Instance!=VK_NULL_HANDLE) vkDestroyInstance(this->Context.Instance, nullptr);
 }

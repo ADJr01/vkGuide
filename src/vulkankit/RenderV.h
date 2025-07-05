@@ -20,9 +20,14 @@ private:
     //vulkan Components
     VkContext Context;
     VkQueue  graphicsQueue; //? To store graphics queue created by logical device
+    VkQueue presentationQueue;
     VkSurfaceKHR surface;
-    std::vector<const char*> validation_layers = {
+    const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
+    };
+    // * DEVICE EXTENSIONS
+    const std::vector<const char*> deviceExtensions = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 //! vulkan functions
     // ? Create Functions
@@ -35,8 +40,9 @@ private:
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice& device); // ? for parsing queue families from any physical device
     // ? setters
     void setupDebugMessenger();
-    // ? Support Functions
+    // ? Check Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
+    bool checkDeviceExtensionSupport(VkPhysicalDevice &device);
     bool checkDeviceSuitability(VkPhysicalDevice physicalDevice);
     void checkPhysicalDeviceInfo(VkPhysicalDevice &device);
 
