@@ -222,11 +222,11 @@ void RenderV::createLogicalDevice() {
     const float HIGHEST_PRIORITY = 1.0;
     //physical device features for logical device to use
     VkPhysicalDeviceFeatures deviceFeatures = {};
-    deviceFeatures.shaderFloat64 = true;
+    vkGetPhysicalDeviceFeatures(this->Context.Device.physicalDevice,&deviceFeatures);
 
     QueueFamilyIndices indices = this->getQueueFamilies(this->Context.Device.physicalDevice);
     if (!indices.isValidGraphicsFamily()) throw std::runtime_error("Device doesn't support Required Queue Family");
-    //queues that logical device need to create.queue create info
+    //queues that logical device needs to create.queue create info
     VkDeviceQueueCreateInfo queueCreateInfo = {};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo.queueFamilyIndex = indices.graphicsFamily; //? index of graphics family to create queue from
