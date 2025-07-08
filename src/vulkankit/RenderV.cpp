@@ -9,8 +9,7 @@
 #include <vector>
 #include <iterator>
 #include <iostream>
-
-
+#include <limits>
 
 
 VkApplicationInfo RenderV::getAppInfo(std::string appName, std::string engineName) {
@@ -157,6 +156,66 @@ void RenderV::createSurface() {
 
 }
 
+void RenderV::createSwapChain() {
+    //getting swapchain info from device
+    SwapChainInfo swapChainInfo = getSwapChainInfo(this->Context.Device.physicalDevice);
+    // * 1. Choose Best Format
+
+    //* 2. Choose Best Presentation Mode
+
+    //* 3. Choose Best Image Resolution
+
+}
+
+VkSurfaceFormatKHR RenderV::getBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
+    //may differ based on different implementation.
+    //*in this practice session i will use
+    //*VkFormat           format:     VK_FORMAT_R8G8B8A8_UNORM
+    //VkColorSpaceKHR    colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+    if (formats.size()<1) throw std::logic_error("Invalid Surface Format Error");
+    for (const auto &format:formats) {
+        if ((format.format==VK_FORMAT_R8G8B8A8_UNORM || format.format==VK_FORMAT_B8G8R8A8_UNORM)
+            && format.colorSpace==VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return format;
+        }
+    }
+    std::cerr<<"FALL BACK Surface Format\n ";
+    return formats[0];
+}
+
+VkPresentModeKHR RenderV::getBestPresentMode(const std::vector<VkPresentModeKHR> &presentationModes) {
+    if (presentationModes.size()<1) throw std::logic_error("Invalid Present Mode Error");
+    for (const auto &presentationMode:presentationModes) {
+        if (presentationMode==VK_PRESENT_MODE_MAILBOX_KHR) {
+            return presentationMode;
+        }
+    }
+    std::cerr<<"FALL BACK PRESENT MODE VK_PRESENT_MODE_FIFO_KHR\n  ";
+    // vulkan guaranteed that `VK_PRESENT_MODE_FIFO_KHR` is present
+    return  VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D RenderV::chooseSwapExt(const VkSurfaceCapabilitiesKHR &capabilities) {
+    if (capabilities.currentExtent.width==0 ||
+        capabilities.currentExtent.width>=std::numeric_limits<uint32_t>::max() ||
+        capabilities.currentExtent.height==0 || capabilities.currentExtent.height>=std::numeric_limits<uint32_t>::max()
+        ) {
+        std::cerr<<"Invalid Extent Error.Fallback to glfwFrameBuffer Option\n";
+        int width,height;
+        glfwGetFramebufferSize(this->Window,&width,&height);
+        auto customExtent =  VkExtent2D{
+            .width = static_cast<uint32_t>(width),
+            .height = static_cast<uint32_t>(height),
+        };
+
+        return  customExtent;
+    }
+    return capabilities.currentExtent;
+}
+
+
+
+
 
 void RenderV::createLogicalDevice() {
     //? Get Queue Families From our chosen physical device
@@ -236,16 +295,7 @@ SwapChainInfo RenderV::getSwapChainInfo(VkPhysicalDevice device) const {
 
 
 
-void RenderV::setupDebugMessenger() {
-    VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo = {};
-    debugMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugMessengerCreateInfo.messageSeverity =  VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugMessengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    debugMessengerCreateInfo.pfnUserCallback = this->debugCallBack;
-    debugMessengerCreateInfo.pUserData = nullptr;
-    // TODO Setup debug messenger
 
-}
 
 
 

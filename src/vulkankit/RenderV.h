@@ -34,37 +34,23 @@ private:
     void createVulkanInstance();
     void createLogicalDevice();
     void createSurface();
+    void createSwapChain();
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
     QueueFamilyIndices getQueueFamilies(VkPhysicalDevice& device); // ? for parsing queue families from any physical device
     SwapChainInfo getSwapChainInfo(VkPhysicalDevice device) const;
-    // ? setters
-    void setupDebugMessenger();
+    VkSurfaceFormatKHR getBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& formats);
+    VkPresentModeKHR getBestPresentMode(const std::vector<VkPresentModeKHR>& presentationModes);
+    VkExtent2D chooseSwapExt(const VkSurfaceCapabilitiesKHR& capabilities);
+
     // ? Check Support Functions
     bool checkInstanceExtensionSupport(const std::vector<const char*>* inputExtensionList);
     bool checkDeviceExtensionSupport(VkPhysicalDevice &device);
     bool checkDeviceSuitability(VkPhysicalDevice physicalDevice);
     void checkPhysicalDeviceInfo(VkPhysicalDevice &device);
 
-    //! Error Callback Function for Vulkan to use
-    static VKAPI_ATTR VkBool32 VKAPI_CALL
-    debugCallBack(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                  VkDebugUtilsMessageTypeFlagsEXT messageType,
-                  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                  void* pUserData) {
-        const auto debug = ">>vkDebug: ";
-        if (messageSeverity && (isSetBit(messageSeverity,1)
-            ||
-            isSetBit(messageSeverity,2)
-            ||
-            isSetBit(messageSeverity,3))){
-            // For the time being just log all info or error strings
-            auto message = std::string(pCallbackData->pMessage);
-            std::cerr << debug << message << std::endl;
-        }
-        return  VK_FALSE;
-    }
+
 public:
         RenderV()=default;
         ~RenderV();
