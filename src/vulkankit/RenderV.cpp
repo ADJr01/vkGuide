@@ -160,10 +160,24 @@ void RenderV::createSwapChain() {
     //getting swapchain info from device
     SwapChainInfo swapChainInfo = getSwapChainInfo(this->Context.Device.physicalDevice);
     // * 1. Choose Best Format
-
+    VkSurfaceFormatKHR surfaceFormat = this->getBestSurfaceFormat(swapChainInfo.surfaceFormats);
     //* 2. Choose Best Presentation Mode
-
+    VkPresentModeKHR presentMode = this->getBestPresentMode(swapChainInfo.presentationModes);
     //* 3. Choose Best Image Resolution
+    VkExtent2D swapChainExtent = this->chooseSwapExt(swapChainInfo.surfaceCapabilities);
+
+    // let's create swapChain Create info
+    VkSwapchainCreateInfoKHR swapChainCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .surface = this->surface,
+        .imageFormat = surfaceFormat.format,
+        .imageExtent = swapChainExtent,
+        .presentMode = presentMode,
+        .imageColorSpace = surfaceFormat.colorSpace,
+        .minImageCount = swapChainInfo.surfaceCapabilities.minImageCount + 1, // what
+
+    };
+
 
 }
 
@@ -203,9 +217,11 @@ VkExtent2D RenderV::chooseSwapExt(const VkSurfaceCapabilitiesKHR &capabilities) 
         std::cerr<<"Invalid Extent Error.Fallback to glfwFrameBuffer Option\n";
         int width,height;
         glfwGetFramebufferSize(this->Window,&width,&height);
+        uint32_t min_image_width = std::min(capabilities.maxImageExtent.width,static_cast<uint32_t>(width));
+        uint32_t min_image_height = std::min(capabilities.maxImageExtent.height,static_cast<uint32_t>(height));
         auto customExtent =  VkExtent2D{
-            .width = static_cast<uint32_t>(width),
-            .height = static_cast<uint32_t>(height),
+            .width = std::max(min_image_width,static_cast<uint32_t>(capabilities.minImageExtent.width)),
+            .height =std::max(min_image_height,static_cast<uint32_t>(capabilities.minImageExtent.height)),
         };
 
         return  customExtent;
