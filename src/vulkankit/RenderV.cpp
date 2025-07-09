@@ -171,18 +171,44 @@ void RenderV::createSwapChain() {
     auto imageCount =  static_cast<uint32_t>(swapChainInfo.surfaceCapabilities.minImageCount + 1);
     if (swapChainInfo.surfaceCapabilities.maxImageCount<imageCount) imageCount = swapChainInfo.surfaceCapabilities.maxImageCount;
     // let's create swapChain Create info
-    VkSwapchainCreateInfoKHR swapChainCreateInfo = {
-        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-        .surface = this->surface,
-        .minImageCount = imageCount, // Enabling Triple Buffer. 1 front 2 back
-        .imageFormat = surfaceFormat.format,
-        .imageColorSpace = surfaceFormat.colorSpace,
-        .imageExtent = swapChainExtent,
-        .presentMode = presentMode,
-    };
+    VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
+      swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapChainCreateInfo.surface = this->surface;
+    swapChainCreateInfo.minImageCount = imageCount; // Enabling Triple Buffer. 1 front 2 back
+    swapChainCreateInfo.imageFormat = surfaceFormat.format;
+    swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+    swapChainCreateInfo.imageExtent = swapChainExtent;
+    swapChainCreateInfo.imageArrayLayers = 1; //* numbers of layers for each image in chain
+    swapChainCreateInfo.imageUsage =  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; // what attachment we will be using
+    swapChainCreateInfo.preTransform = swapChainInfo.surfaceCapabilities.currentTransform; // transform to perform on swap chain
+    swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR; // how to blend with external graphics , like how to blend with things outside of window area
+    swapChainCreateInfo.clipped = VK_TRUE;     //Clipping part of image which are off screen
+    swapChainCreateInfo.presentMode = presentMode;
+    QueueFamilyIndices indices = getQueueFamilies(this->Context.Device.physicalDevice);
+    if (indices.graphicsFamily==indices.presentFamily) {
+      //graphics and presentation family are same
+      swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+      swapChainCreateInfo.queueFamilyIndexCount = 0;
+      swapChainCreateInfo.pQueueFamilyIndices = nullptr;
+    }else {
+      // ? Image will be share between queue families concurrently
+      uint32_t queueFamilyIndices[]={
+        static_cast<uint32_t>(indices.graphicsFamily),
+        static_cast<uint32_t>(indices.presentFamily),
+      };
+      swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+      swapChainCreateInfo.queueFamilyIndexCount = 2;
+      swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
 
+    }
+  //! if we have old swapChain then we will pass it it to oldSwapChain, which is mainly used when resizing screen
+  swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
+  //* create swapchain
+  if (vkCreateSwapchainKHR(this->Context.Device.logicalDevice,&swapChainCreateInfo,nullptr,&this->swapChain)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to create swap chain");
 
+  }
 }
 
 VkSurfaceFormatKHR RenderV::getBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
@@ -327,6 +353,7 @@ int RenderV::init(GLFWwindow *window) {
         this->createSurface();
         this->getPhysicalDevice();
         this->createLogicalDevice();
+        this->createSwapChain();
     }catch (const std::runtime_error &e) {
         const auto errorMessage = e.what();
         std::cerr<<"Runtimer Error: "<< errorMessage << std::endl;
@@ -340,6 +367,7 @@ int RenderV::init(GLFWwindow *window) {
 
 
 RenderV::~RenderV() {
+    vkDestroySwapchainKHR(this->Context.Device.logicalDevice,this->swapChain,nullptr);
     vkDestroySurfaceKHR(this->Context.Instance,this->surface,nullptr);
     if (this->Context.Device.logicalDevice!=VK_NULL_HANDLE) vkDestroyDevice(this->Context.Device.logicalDevice, nullptr);
     if (this->Context.Instance!=VK_NULL_HANDLE) vkDestroyInstance(this->Context.Instance, nullptr);

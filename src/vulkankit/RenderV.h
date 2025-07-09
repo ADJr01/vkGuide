@@ -22,6 +22,7 @@ private:
     VkQueue  graphicsQueue; //? To store graphics queue created by logical device
     VkQueue presentationQueue;
     VkSurfaceKHR surface;
+    VkSwapchainKHR swapChain;
     const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
