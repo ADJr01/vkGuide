@@ -209,7 +209,51 @@ void RenderV::createSwapChain() {
     throw std::runtime_error("failed to create swap chain");
 
   }
+
+  //? storing image format and extent
+  this->swapChainImageFormat = surfaceFormat.format;
+  this->swapChainExtent = swapChainExtent;
+
+  //get image from swapChain
+  uint32_t swapChainImageCount = 0;
+  vkGetSwapchainImagesKHR(this->Context.Device.logicalDevice,this->swapChain,&swapChainImageCount,nullptr);
+  assert(swapChainImageCount>0);
+  std::vector<VkImage> imageList(swapChainImageCount);
+   vkGetSwapchainImagesKHR(this->Context.Device.logicalDevice,this->swapChain,&swapChainImageCount,imageList.data());
+  assert(!imageList.empty());
+   for (const auto image : imageList) {
+     SwapChainImage swapChainImage = {};
+     swapChainImage.image = image;
+     swapChainImage.imageView = this->createImageViews(image,this->swapChainImageFormat,VK_IMAGE_ASPECT_COLOR_BIT);
+     this->swapChainImages.push_back(swapChainImage);
+
+   }
 }
+
+VkImageView RenderV::createImageViews(VkImage img, VkFormat format,VkImageAspectFlags aspectFlags) {
+  VkImageViewCreateInfo imageViewInfo = {};
+  imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageViewInfo.image = img;
+  imageViewInfo.format = format;
+  imageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageViewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  imageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+  imageViewInfo.subresourceRange.aspectMask = aspectFlags;
+  imageViewInfo.subresourceRange.baseMipLevel = 0;
+  imageViewInfo.subresourceRange.levelCount = 1;
+  imageViewInfo.subresourceRange.baseArrayLayer = 0;
+  imageViewInfo.subresourceRange.layerCount = 1;
+
+  VkImageView imageView = VK_NULL_HANDLE;
+  if (vkCreateImageView(this->Context.Device.logicalDevice,&imageViewInfo,nullptr,&imageView)!=VK_SUCCESS) {
+    throw std::range_error("failed to create image view");
+  }
+
+}
+
 
 VkSurfaceFormatKHR RenderV::getBestSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &formats) {
     //may differ based on different implementation.

@@ -36,6 +36,10 @@ typedef struct {
     std::vector<VkPresentModeKHR> presentationModes; // presentation mode...way of Display and SwapChain Synchronization
 }SwapChainInfo;
 
+struct SwapChainImage {
+  VkImage image;
+  VkImageView imageView;
+};
 
 
 #endif //RENDERVUTIL_H

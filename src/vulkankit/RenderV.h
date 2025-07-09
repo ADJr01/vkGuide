@@ -17,12 +17,13 @@ const bool enable_validation_layers = true;
 class RenderV {
 private:
     GLFWwindow* Window;
-    //vulkan Components
+    //* vulkan Components
     VkContext Context;
     VkQueue  graphicsQueue; //? To store graphics queue created by logical device
     VkQueue presentationQueue;
     VkSurfaceKHR surface;
     VkSwapchainKHR swapChain;
+    std::vector<SwapChainImage> swapChainImages;
     const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -30,12 +31,20 @@ private:
     const std::vector<const char*> deviceExtensions = {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
+
+  //* Vk Utility
+  VkFormat swapChainImageFormat;
+  VkExtent2D swapChainExtent;
+
+
+
 //! vulkan functions
     // ? Create Functions
     void createVulkanInstance();
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
+    VkImageView createImageViews(VkImage img,VkFormat format,VkImageAspectFlags aspectFlags);
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
