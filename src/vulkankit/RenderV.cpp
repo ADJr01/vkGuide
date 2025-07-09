@@ -186,7 +186,7 @@ void RenderV::createSwapChain() {
     swapChainCreateInfo.presentMode = presentMode;
     QueueFamilyIndices indices = getQueueFamilies(this->Context.Device.physicalDevice);
     if (indices.graphicsFamily==indices.presentFamily) {
-      //graphics and presentation family are same
+      //case: graphics and presentation family are same
       swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
       swapChainCreateInfo.queueFamilyIndexCount = 0;
       swapChainCreateInfo.pQueueFamilyIndices = nullptr;
