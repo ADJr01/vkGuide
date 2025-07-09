@@ -162,20 +162,19 @@ void RenderV::createSwapChain() {
     // * 1. Choose Best Format
     VkSurfaceFormatKHR surfaceFormat = this->getBestSurfaceFormat(swapChainInfo.surfaceFormats);
     //* 2. Choose Best Presentation Mode
-    VkPresentModeKHR presentMode = this->getBestPresentMode(swapChainInfo.presentationModes);
+    const VkPresentModeKHR presentMode = this->getBestPresentMode(swapChainInfo.presentationModes);
     //* 3. Choose Best Image Resolution
     VkExtent2D swapChainExtent = this->chooseSwapExt(swapChainInfo.surfaceCapabilities);
-
+    const auto imageCount =  static_cast<uint32_t>(swapChainInfo.surfaceCapabilities.minImageCount + 1);
     // let's create swapChain Create info
     VkSwapchainCreateInfoKHR swapChainCreateInfo = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = this->surface,
         .imageFormat = surfaceFormat.format,
+        .imageColorSpace = surfaceFormat.colorSpace,
         .imageExtent = swapChainExtent,
         .presentMode = presentMode,
-        .imageColorSpace = surfaceFormat.colorSpace,
-        .minImageCount = swapChainInfo.surfaceCapabilities.minImageCount + 1, // what
-
+        .minImageCount = imageCount, // Enabling Triple Buffer. 1 front 2 back
     };
 
 
