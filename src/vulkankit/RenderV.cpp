@@ -231,6 +231,7 @@ void RenderV::createSwapChain() {
 }
 
 VkImageView RenderV::createImageViews(VkImage img, VkFormat format,VkImageAspectFlags aspectFlags) {
+
   VkImageViewCreateInfo imageViewInfo = {};
   imageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   imageViewInfo.image = img;
@@ -246,12 +247,11 @@ VkImageView RenderV::createImageViews(VkImage img, VkFormat format,VkImageAspect
   imageViewInfo.subresourceRange.levelCount = 1;
   imageViewInfo.subresourceRange.baseArrayLayer = 0;
   imageViewInfo.subresourceRange.layerCount = 1;
-
   VkImageView imageView = VK_NULL_HANDLE;
   if (vkCreateImageView(this->Context.Device.logicalDevice,&imageViewInfo,nullptr,&imageView)!=VK_SUCCESS) {
     throw std::range_error("failed to create image view");
   }
-
+  return imageView;
 }
 
 
@@ -411,6 +411,9 @@ int RenderV::init(GLFWwindow *window) {
 
 
 RenderV::~RenderV() {
+  for (const auto &img : this->swapChainImages) {
+    vkDestroyImageView(this->Context.Device.logicalDevice,img.imageView,nullptr);
+  }
     vkDestroySwapchainKHR(this->Context.Device.logicalDevice,this->swapChain,nullptr);
     vkDestroySurfaceKHR(this->Context.Instance,this->surface,nullptr);
     if (this->Context.Device.logicalDevice!=VK_NULL_HANDLE) vkDestroyDevice(this->Context.Device.logicalDevice, nullptr);
