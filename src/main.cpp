@@ -25,6 +25,9 @@ int main() {
 
         while (!glfwWindowShouldClose(Window)) {
             glfwPollEvents();
+          if (glfwGetKey(Window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(Window,GLFW_TRUE);
+          }
         }
 
         glfwDestroyWindow(Window);
