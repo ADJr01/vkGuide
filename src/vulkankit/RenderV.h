@@ -36,6 +36,8 @@ private:
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
 
+  //? other utility
+  static std::vector<char> parseSpirV(const std::string& file_path);
 
 
 //! vulkan functions
@@ -44,6 +46,7 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
+    void createGraphicsdPipeline();
     VkImageView createImageViews(VkImage img,VkFormat format,VkImageAspectFlags aspectFlags);
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
