@@ -384,7 +384,12 @@ SwapChainInfo RenderV::getSwapChainInfo(VkPhysicalDevice device) const {
 
 
 void RenderV::createGraphicsdPipeline() {
-      const auto vertexShader = RenderV::parseSpirV("/home/adnan/Desktop/Projects/Cpp/CG/vkGuide/src/shader/vertex.spv");
+      try {
+        const auto vertexShader = RenderV::parseSpirV("D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
+      }catch (std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+
+      }
 
 }
 
