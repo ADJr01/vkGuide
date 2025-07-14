@@ -452,21 +452,17 @@ SwapChainInfo RenderV::getSwapChainInfo(VkPhysicalDevice device) const {
 
 void RenderV::createGraphicsPipeline() {
   //? Create Shader Module
-  const auto vertexShaderModule = this->createShaderModule(
-      "D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
-  const auto fragmentShaderModule = this->createShaderModule(
-      "D:/Projects/Personal/CG/vkGuide/src/shader/fragment.spv");
+  const auto vertexShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
+  const auto fragmentShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/fragment.spv");
   //* VERTEX SHADER STAGE CREATION INFO
   VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
-  vertexShaderStageCreateInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vertexShaderStageCreateInfo.sType =VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   vertexShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
   vertexShaderStageCreateInfo.module = vertexShaderModule;
   vertexShaderStageCreateInfo.pName ="main";  // target function from where to start
   //* FRAGMENT SHADER STAGE CREATION INFO
   VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {};
-  fragmentShaderStageCreateInfo.sType =
-      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fragmentShaderStageCreateInfo.sType =VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   fragmentShaderStageCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
   fragmentShaderStageCreateInfo.module = fragmentShaderModule;
   fragmentShaderStageCreateInfo.pName ="main";  // target function from where to start
