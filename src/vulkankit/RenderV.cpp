@@ -451,18 +451,35 @@ SwapChainInfo RenderV::getSwapChainInfo(VkPhysicalDevice device) const {
 }
 
 void RenderV::createGraphicsPipeline() {
-    //? Create Shader Module
-    const auto vertexShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
-    const auto fragmentShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/fragment.spv");
-    //* SHADER STAGE CREATION INFO
+  //? Create Shader Module
+  const auto vertexShaderModule = this->createShaderModule(
+      "D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
+  const auto fragmentShaderModule = this->createShaderModule(
+      "D:/Projects/Personal/CG/vkGuide/src/shader/fragment.spv");
+  //* VERTEX SHADER STAGE CREATION INFO
   VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
-    //? Create GRAPHICS PIPELINE
+  vertexShaderStageCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  vertexShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+  vertexShaderStageCreateInfo.module = vertexShaderModule;
+  vertexShaderStageCreateInfo.pName ="main";  // target function from where to start
+  //* FRAGMENT SHADER STAGE CREATION INFO
+  VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {};
+  fragmentShaderStageCreateInfo.sType =
+      VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  fragmentShaderStageCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+  fragmentShaderStageCreateInfo.module = fragmentShaderModule;
+  fragmentShaderStageCreateInfo.pName ="main";  // target function from where to start
+  //? Create GRAPHICS PIPELINE
+  VkPipelineShaderStageCreateInfo shaderStages[] = {
+      vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
 
 
   //! DESTROY SHADER MODULE AFTER PIPELINE CREATION
-  vkDestroyShaderModule(this->Context.Device.logicalDevice, fragmentShaderModule,nullptr);
-  vkDestroyShaderModule(this->Context.Device.logicalDevice, vertexShaderModule,nullptr);
-
+  vkDestroyShaderModule(this->Context.Device.logicalDevice,
+                        fragmentShaderModule, nullptr);
+  vkDestroyShaderModule(this->Context.Device.logicalDevice, vertexShaderModule,
+                        nullptr);
 }
 
 VkShaderModule RenderV::createShaderModule(std::string shaderPath) {
@@ -472,12 +489,11 @@ VkShaderModule RenderV::createShaderModule(std::string shaderPath) {
   createInfo.codeSize = shader.size();
   createInfo.pCode = reinterpret_cast<const uint32_t *>(shader.data());
   VkShaderModule shaderModule = VK_NULL_HANDLE;
-  if (vkCreateShaderModule(this->Context.Device.logicalDevice, &createInfo, nullptr,
-                       &shaderModule)!=VK_SUCCESS) {
+  if (vkCreateShaderModule(this->Context.Device.logicalDevice, &createInfo,
+                           nullptr, &shaderModule) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module");
   }
   return shaderModule;
-
 }
 
 int RenderV::init(GLFWwindow *window) {
