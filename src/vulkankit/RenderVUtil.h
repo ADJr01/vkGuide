@@ -42,4 +42,5 @@ struct SwapChainImage {
 };
 
 
+
 #endif //RENDERVUTIL_H

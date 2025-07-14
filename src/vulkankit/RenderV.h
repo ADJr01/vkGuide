@@ -46,7 +46,8 @@ private:
     void createLogicalDevice();
     void createSurface();
     void createSwapChain();
-    void createGraphicsdPipeline();
+    VkShaderModule createShaderModule(std::string shaderPath);
+    void createGraphicsPipeline();
     VkImageView createImageViews(VkImage img,VkFormat format,VkImageAspectFlags aspectFlags);
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
