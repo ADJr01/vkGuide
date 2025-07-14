@@ -6,7 +6,7 @@
 GLFWwindow* Window;
 RenderV renderV;
 void initWindow(std::string title="Test Window",int width=800,int height=600) {
-    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+    //glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     if (!glfwInit()) {
         throw std::runtime_error("GLFW initialization failed");
         return;
