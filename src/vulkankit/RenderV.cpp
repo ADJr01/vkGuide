@@ -488,7 +488,22 @@ void RenderV::createGraphicsPipeline() {
   VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo = {};
   inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // *
-  inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE; //* we're telling vulkan that stop drawing current shape just start a new one
+  inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE; //* we're telling vulkan that stop drawing current shape, just start a new one
+
+  //# VIEWPORT & SCISSOR
+  VkViewport viewport = {};
+  viewport.x = 0.0f;
+  viewport.y = 0.0f;
+  viewport.width = static_cast<float>(this->swapChainExtent.width);
+  viewport.height = static_cast<float>(this->swapChainExtent.height);
+  viewport.minDepth = 0.0f; // * closest point (min depth of frame buffer)
+  viewport.maxDepth = 1.0f;//* fartest point (max depth of frame buffer)
+
+  //* creating scissor info
+  VkRect2D scissor = {};
+  scissor.offset = {0,0}; //? offset to use region form
+  scissor.extent = this->swapChainExtent;//? available region to use
+
 
   //! DESTROY SHADER MODULE AFTER PIPELINE CREATION
   vkDestroyShaderModule(this->Context.Device.logicalDevice,
