@@ -487,7 +487,7 @@ void RenderV::createGraphicsPipeline() {
   //# INPUT ASSEMBLY
   VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo = {};
   inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // *
+  inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // * how vertices or point will be assembled
   inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE; //* we're telling vulkan that stop drawing current shape, just start a new one
 
   //# VIEWPORT & SCISSOR
@@ -516,7 +516,19 @@ void RenderV::createGraphicsPipeline() {
   rasterizerCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   rasterizerCreateInfo.depthClampEnable = VK_FALSE; //* controls near and far planes of the viewport, know as depth clipping.
   rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;
-  rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL; //* how to paint the surface of the polygon. we can use VK_POLYGON_MODE_FILL for wreframe effect
+  rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL; //* how to paint the surface of the polygon. we can use VK_POLYGON_MODE_FILL for wireframe effect. But we need GPU feature
+  rasterizerCreateInfo.lineWidth = 1.0f; //* how thick the line should be..other than 1.0 we need GPU feature
+  rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT; //* which face to cull/skip
+  rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; //* Winding to determine which side is front
+  rasterizerCreateInfo.depthBiasClamp = VK_FALSE; //* whether to add depth bias to fragment (require for shadow mapping)
+
+  //# MULTISAMPLING
+  VkPipelineMultisampleStateCreateInfo multisampleCreateInfo = {};
+  multisampleCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  multisampleCreateInfo.sampleShadingEnable = VK_FALSE; //!Currently we're disabling multisampling
+  multisampleCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+  //# Blending
 
 
 
