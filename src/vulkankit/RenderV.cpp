@@ -469,12 +469,13 @@ void RenderV::createGraphicsPipeline() {
   fragmentShaderStageCreateInfo.module = fragmentShaderModule;
   fragmentShaderStageCreateInfo.pName ="main";  // target function from where to start
 
-  //# Create GRAPHICS PIPELINE
   VkPipelineShaderStageCreateInfo shaderStages[] = {
-            vertexShaderStageCreateInfo,
-            fragmentShaderStageCreateInfo
-  };
-  //* PIPELINE STAGES
+    vertexShaderStageCreateInfo,
+    fragmentShaderStageCreateInfo
+};
+  //# Create GRAPHICS PIPELINE
+
+
 
   //# Vertex Input (put in vertex description)
   VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
@@ -528,7 +529,24 @@ void RenderV::createGraphicsPipeline() {
   multisampleCreateInfo.sampleShadingEnable = VK_FALSE; //!Currently we're disabling multisampling
   multisampleCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-  //# Blending
+  //# Blending (how to blend multiple color in fragment)
+
+  VkPipelineColorBlendAttachmentState colorBlendAttachmentState = {};
+  colorBlendAttachmentState.colorWriteMask =  VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |  VK_COLOR_COMPONENT_B_BIT |  VK_COLOR_COMPONENT_A_BIT;
+  colorBlendAttachmentState.blendEnable = VK_TRUE; // Enable Color Blending
+  //* Blend Equation: (VK_BLEND_FACTOR_SRC_ALPHA * newColor) + (VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA * oldColor)
+  colorBlendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+  colorBlendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  colorBlendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
+  colorBlendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+  colorBlendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  colorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
+
+  VkPipelineColorBlendStateCreateInfo colorBlendCreateInfo = {};
+  colorBlendCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  colorBlendCreateInfo.logicOpEnable = VK_FALSE; //? AAlternative to calculation is to use logic operation
+  colorBlendCreateInfo.logicOp = VK_LOGIC_OP_COPY;
+
 
 
 
