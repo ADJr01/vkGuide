@@ -5,16 +5,19 @@
     <option name="tags">
       <list>
         <CustomTag>
+          <option name="bold" value="true" />
           <option name="color" value="#FF2D00" />
           <option name="type" value="!" />
         </CustomTag>
         <CustomTag>
+          <option name="bold" value="true" />
           <option name="color" value="#3498DB" />
           <option name="type" value="?" />
         </CustomTag>
         <CustomTag>
           <option name="color" value="#474747" />
           <option name="hasStrikethrough" value="true" />
+          <option name="italic" value="true" />
           <option name="type" value="//" />
         </CustomTag>
         <CustomTag>
@@ -24,6 +27,12 @@
         <CustomTag>
           <option name="color" value="#98C379" />
           <option name="type" value="*" />
+        </CustomTag>
+        <CustomTag>
+          <option name="bold" value="true" />
+          <option name="color" value="#00CC99" />
+          <option name="hasUnderline" value="true" />
+          <option name="type" value="#" />
         </CustomTag>
       </list>
     </option>

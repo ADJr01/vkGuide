@@ -454,28 +454,48 @@ void RenderV::createGraphicsPipeline() {
   //? Create Shader Module
   const auto vertexShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/vertex.spv");
   const auto fragmentShaderModule = this->createShaderModule("D:/Projects/Personal/CG/vkGuide/src/shader/fragment.spv");
-  //* VERTEX SHADER STAGE CREATION INFO
+
+  //# VERTEX SHADER STAGE CREATION INFO
   VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo = {};
   vertexShaderStageCreateInfo.sType =VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   vertexShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
   vertexShaderStageCreateInfo.module = vertexShaderModule;
   vertexShaderStageCreateInfo.pName ="main";  // target function from where to start
-  //* FRAGMENT SHADER STAGE CREATION INFO
+
+  //# FRAGMENT SHADER STAGE CREATION INFO
   VkPipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = {};
   fragmentShaderStageCreateInfo.sType =VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   fragmentShaderStageCreateInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
   fragmentShaderStageCreateInfo.module = fragmentShaderModule;
   fragmentShaderStageCreateInfo.pName ="main";  // target function from where to start
-  //? Create GRAPHICS PIPELINE
-  VkPipelineShaderStageCreateInfo shaderStages[] = {
-      vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo};
 
+  //# Create GRAPHICS PIPELINE
+  VkPipelineShaderStageCreateInfo shaderStages[] = {
+            vertexShaderStageCreateInfo,
+            fragmentShaderStageCreateInfo
+  };
+  //* PIPELINE STAGES
+
+  //# Vertex Input (put in vertex description)
+  VkPipelineVertexInputStateCreateInfo vertexInputCreateInfo = {};
+  vertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertexInputCreateInfo.vertexBindingDescriptionCount = 0;
+  vertexInputCreateInfo.pVertexBindingDescriptions = nullptr; // * List of vertex Binding Description (data spacing and stride info)
+  vertexInputCreateInfo.vertexAttributeDescriptionCount = 0;
+  vertexInputCreateInfo.pVertexAttributeDescriptions = nullptr;  // * List of vertex Attribiute Description
+
+  //# INPUT ASSEMBLY
+  VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo = {};
+  inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // *
+  inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE; //* we're telling vulkan that stop drawing current shape just start a new one
 
   //! DESTROY SHADER MODULE AFTER PIPELINE CREATION
   vkDestroyShaderModule(this->Context.Device.logicalDevice,
                         fragmentShaderModule, nullptr);
   vkDestroyShaderModule(this->Context.Device.logicalDevice, vertexShaderModule,
                         nullptr);
+
 }
 
 VkShaderModule RenderV::createShaderModule(std::string shaderPath) {
