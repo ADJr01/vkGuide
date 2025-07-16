@@ -491,7 +491,7 @@ void RenderV::createGraphicsPipeline() {
   inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE; //* we're telling vulkan that stop drawing current shape, just start a new one
 
   //# VIEWPORT & SCISSOR
-  VkViewport viewport = {};
+  VkViewport viewport = {}; // ! require for VkPipelineViewportStateCreateInfo
   viewport.x = 0.0f;
   viewport.y = 0.0f;
   viewport.width = static_cast<float>(this->swapChainExtent.width);
@@ -500,9 +500,24 @@ void RenderV::createGraphicsPipeline() {
   viewport.maxDepth = 1.0f;//* fartest point (max depth of frame buffer)
 
   //* creating scissor info
-  VkRect2D scissor = {};
+  VkRect2D scissor = {}; // ! require for VkPipelineViewportStateCreateInfo
   scissor.offset = {0,0}; //? offset to use region form
   scissor.extent = this->swapChainExtent;//? available region to use
+
+  VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {};
+  viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  viewportStateCreateInfo.viewportCount = 1;
+  viewportStateCreateInfo.pViewports = &viewport;
+  viewportStateCreateInfo.scissorCount = 1;
+  viewportStateCreateInfo.pScissors = &scissor;
+
+  //# RASTERIZER
+  VkPipelineRasterizationStateCreateInfo  rasterizerCreateInfo = {};
+  rasterizerCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  rasterizerCreateInfo.depthClampEnable = VK_FALSE; //* controls near and far planes of the viewport, know as depth clipping.
+  rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;
+  rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL; //* how to paint the surface of the polygon. we can use VK_POLYGON_MODE_FILL for wreframe effect
+
 
 
   //! DESTROY SHADER MODULE AFTER PIPELINE CREATION
