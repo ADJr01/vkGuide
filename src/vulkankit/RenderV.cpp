@@ -545,7 +545,9 @@ void RenderV::createGraphicsPipeline() {
   VkPipelineColorBlendStateCreateInfo colorBlendCreateInfo = {};
   colorBlendCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
   colorBlendCreateInfo.logicOpEnable = VK_FALSE; //? AAlternative to calculation is to use logic operation
-  colorBlendCreateInfo.logicOp = VK_LOGIC_OP_COPY;
+  colorBlendCreateInfo.attachmentCount = 1;
+  colorBlendCreateInfo.pAttachments = &colorBlendAttachmentState;
+
 
 
 
