@@ -559,6 +559,12 @@ void RenderV::createGraphicsPipeline() {
     throw std::runtime_error("failed to create pipeline layout");
   }
 
+  //TODO: SETUP DEPTH & STENCIL TESTING
+
+
+
+
+
 
 
   //! DESTROY SHADER MODULE AFTER PIPELINE CREATION
@@ -583,6 +589,21 @@ VkShaderModule RenderV::createShaderModule(std::string shaderPath) {
   return shaderModule;
 }
 
+void RenderV::createRenderPass() {
+  //*create color attachment of render pass
+  VkAttachmentDescription colorAttachment = {};
+  colorAttachment.format = this->swapChainImageFormat;  //?format to use in attachment
+  colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;  //? Count of sample to learn for multisampling
+  colorAttachment.loadOp =
+
+  VkRenderPassCreateInfo renderpassCreateInfo = {};
+  renderpassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+
+}
+
+
+
 int RenderV::init(GLFWwindow *window) {
   try {
     this->Window = window;
@@ -591,6 +612,7 @@ int RenderV::init(GLFWwindow *window) {
     this->getPhysicalDevice();
     this->createLogicalDevice();
     this->createSwapChain();
+    this->createRenderPass();
     this->createGraphicsPipeline();
   } catch (const std::runtime_error &e) {
     const auto errorMessage = e.what();

@@ -49,6 +49,7 @@ private:
     void createSwapChain();
     VkShaderModule createShaderModule(std::string shaderPath);
     void createGraphicsPipeline();
+    void createRenderPass();
     VkImageView createImageViews(VkImage img,VkFormat format,VkImageAspectFlags aspectFlags);
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
