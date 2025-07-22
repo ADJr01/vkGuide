@@ -555,6 +555,9 @@ void RenderV::createGraphicsPipeline() {
   pipelineLayoutCreateInfo.pSetLayouts = nullptr;
   pipelineLayoutCreateInfo.pushConstantRangeCount=0;
   pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+  if (vkCreatePipelineLayout(this->Context.Device.logicalDevice,&pipelineLayoutCreateInfo,nullptr,&this->pipelineLayout)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to create pipeline layout");
+  }
 
 
 
@@ -599,6 +602,7 @@ int RenderV::init(GLFWwindow *window) {
 }
 
 RenderV::~RenderV() {
+  vkDestroyPipelineLayout(this->Context.Device.logicalDevice,this->pipelineLayout,nullptr);
   for (const auto &img : this->swapChainImages) {
     vkDestroyImageView(this->Context.Device.logicalDevice, img.imageView,
                        nullptr);
