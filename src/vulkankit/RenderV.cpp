@@ -548,7 +548,13 @@ void RenderV::createGraphicsPipeline() {
   colorBlendCreateInfo.attachmentCount = 1;
   colorBlendCreateInfo.pAttachments = &colorBlendAttachmentState;
 
-
+  //* Pipeline Layout ( TODO: Apply Future Descriptor set layout)
+  VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+  pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipelineLayoutCreateInfo.setLayoutCount = 0;
+  pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+  pipelineLayoutCreateInfo.pushConstantRangeCount=0;
+  pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
 
 
