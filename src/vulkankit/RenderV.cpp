@@ -603,6 +603,8 @@ void RenderV::createRenderPass() {
 
   VkRenderPassCreateInfo renderpassCreateInfo = {};
   renderpassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderpassCreateInfo.attachmentCount = 1;
+  renderpassCreateInfo.pAttachments = &colorAttachment;
 
 
 }
