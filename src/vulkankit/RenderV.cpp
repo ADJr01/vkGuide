@@ -601,6 +601,9 @@ void RenderV::createRenderPass() {
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; //? image data layout before render pass start
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;//? image data will change to it after render pass
 
+  //#attaching subpass
+
+
   VkRenderPassCreateInfo renderpassCreateInfo = {};
   renderpassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderpassCreateInfo.attachmentCount = 1;
