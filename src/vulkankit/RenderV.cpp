@@ -214,7 +214,7 @@ void RenderV::createSwapChain() {
                                           // , like how to blend with things
                                           // outside of window area
   swapChainCreateInfo.clipped =
-      VK_TRUE;  // Clipping part of image which are off screen
+      VK_TRUE;  // Clipping part of image which are off-screen
   swapChainCreateInfo.presentMode = presentMode;
   QueueFamilyIndices indices =
       getQueueFamilies(this->Context.Device.physicalDevice);
@@ -294,7 +294,7 @@ VkImageView RenderV::createImageViews(VkImage img, VkFormat format,
 VkSurfaceFormatKHR RenderV::getBestSurfaceFormat(
     const std::vector<VkSurfaceFormatKHR> &formats) {
   // may differ based on different implementation.
-  //*in this practice session i will use
+  //*in this practice session I will use
   //*VkFormat           format:     VK_FORMAT_R8G8B8A8_UNORM
   // VkColorSpaceKHR    colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
   if (formats.size() < 1)
@@ -498,7 +498,7 @@ void RenderV::createGraphicsPipeline() {
   viewport.y = 0.0f;
   viewport.width = static_cast<float>(this->swapChainExtent.width);
   viewport.height = static_cast<float>(this->swapChainExtent.height);
-  viewport.minDepth = 0.0f; // * closest point (min depth of frame buffer)
+  viewport.minDepth = 0.0f; // * the closest point (min depth of frame buffer)
   viewport.maxDepth = 1.0f;//* fartest point (max depth of frame buffer)
 
   //* creating scissor info
@@ -519,7 +519,7 @@ void RenderV::createGraphicsPipeline() {
   rasterizerCreateInfo.depthClampEnable = VK_FALSE; //* controls near and far planes of the viewport, know as depth clipping.
   rasterizerCreateInfo.rasterizerDiscardEnable = VK_FALSE;
   rasterizerCreateInfo.polygonMode = VK_POLYGON_MODE_FILL; //* how to paint the surface of the polygon. we can use VK_POLYGON_MODE_FILL for wireframe effect. But we need GPU feature
-  rasterizerCreateInfo.lineWidth = 1.0f; //* how thick the line should be..other than 1.0 we need GPU feature
+  rasterizerCreateInfo.lineWidth = 1.0f; //* how thick the line should be.other than 1.0 we need GPU feature
   rasterizerCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT; //* which face to cull/skip
   rasterizerCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE; //* Winding to determine which side is front
   rasterizerCreateInfo.depthBiasClamp = VK_FALSE; //* whether to add depth bias to fragment (require for shadow mapping)
@@ -631,7 +631,7 @@ void RenderV::createRenderPass() {
   subPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; //? binding to Graphics Pipeline
   subPassDescription.colorAttachmentCount = 1;
   subPassDescription.pColorAttachments = &colorAttachmentReference;
-  //* need to to handle layout transition using subpass dependencies
+  //* need to  handle layout transition using subpass dependencies
   std::array<VkSubpassDependency,2> subpassDependencies{};
   //$ Convertion From VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
   //*transition must happen after
