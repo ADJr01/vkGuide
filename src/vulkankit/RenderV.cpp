@@ -644,7 +644,7 @@ void RenderV::createRenderPass() {
   renderpassCreateInfo.pSubpasses = &subPassDescription;
   renderpassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
   renderpassCreateInfo.pDependencies = subpassDependencies.data();
-  if (vkCreateRenderPass(this->Context.Device.logicalDevice,&renderpassCreateInfo,nullptr,))
+  if (vkCreateRenderPass(this->Context.Device.logicalDevice,&renderpassCreateInfo,nullptr,&this->renderPass)!=VK_SUCCESS)
 
 
 }
