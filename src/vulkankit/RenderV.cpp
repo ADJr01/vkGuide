@@ -561,9 +561,28 @@ void RenderV::createGraphicsPipeline() {
   }
 
   //TODO: SETUP DEPTH & STENCIL TESTING
+  VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = {};
+  graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  graphicsPipelineCreateInfo.stageCount = 2; //? number of shader stages
+  graphicsPipelineCreateInfo.pStages = shaderStages; //? shaders
+  graphicsPipelineCreateInfo.pVertexInputState = &vertexInputCreateInfo;
+  graphicsPipelineCreateInfo.pInputAssemblyState = &inputAssemblyCreateInfo;
+  graphicsPipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
+  graphicsPipelineCreateInfo.pDynamicState = nullptr;
+  graphicsPipelineCreateInfo.pRasterizationState = &rasterizerCreateInfo;
+  graphicsPipelineCreateInfo.pMultisampleState = &multisampleCreateInfo;
+  graphicsPipelineCreateInfo.pColorBlendState = &colorBlendCreateInfo;
+  graphicsPipelineCreateInfo.pDepthStencilState = nullptr;
+  graphicsPipelineCreateInfo.layout = pipelineLayout; //?pipeline layout
+  graphicsPipelineCreateInfo.renderPass = renderPass; //?render pass description
+  graphicsPipelineCreateInfo.subpass = 0;
+  //* PIPELINE DERIVATIVES TO CREATE MULTIPLE PIPELINE THAT DERIVE FROM ONE ANOTHER FOR OPTIMIZATION
+  graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+  graphicsPipelineCreateInfo.basePipelineIndex = -1;
 
-
-
+  if (vkCreateGraphicsPipelines(this->Context.Device.logicalDevice,VK_NULL_HANDLE,1,&graphicsPipelineCreateInfo,nullptr,&this->graphicsPipeline)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to create graphics pipeline");
+  }
 
 
 
@@ -623,7 +642,7 @@ void RenderV::createRenderPass() {
   subpassDependencies[0].dstSubpass = 0;
   subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
   subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
+  subpassDependencies[0].dependencyFlags = 0;
   //$ Convertion From VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
   //*transition must happen after
   subpassDependencies[1].srcSubpass = 0;
@@ -633,6 +652,7 @@ void RenderV::createRenderPass() {
   subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
   subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
   subpassDependencies[1].dstAccessMask =  VK_ACCESS_MEMORY_READ_BIT;
+  subpassDependencies[1].dependencyFlags = 0;
 
 
   //*Render Pass Create Info
@@ -673,6 +693,8 @@ int RenderV::init(GLFWwindow *window) {
 }
 
 RenderV::~RenderV() {
+  vkDestroyPipeline(this->Context.Device.logicalDevice,this->graphicsPipeline,nullptr);
+  vkDestroyRenderPass(this->Context.Device.logicalDevice,this->renderPass,nullptr);
   vkDestroyPipelineLayout(this->Context.Device.logicalDevice,this->pipelineLayout,nullptr);
   for (const auto &img : this->swapChainImages) {
     vkDestroyImageView(this->Context.Device.logicalDevice, img.imageView,
