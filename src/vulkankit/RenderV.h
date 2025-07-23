@@ -24,6 +24,7 @@ private:
     VkSurfaceKHR surface;
     VkSwapchainKHR swapChain;
     VkPipelineLayout pipelineLayout;
+    VkRenderPass renderPass;
     std::vector<SwapChainImage> swapChainImages;
     const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"

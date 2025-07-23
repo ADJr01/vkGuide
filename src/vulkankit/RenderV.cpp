@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <assert.h>
 
+#include <array>
 #include <cstring>
 #include <iostream>
 #include <iterator>
@@ -601,13 +602,49 @@ void RenderV::createRenderPass() {
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; //? image data layout before render pass start
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;//? image data will change to it after render pass
 
-  //#attaching subpass
-  VkSubpassDescription subPassDescription = {};
+  //* Attachment Reference uses an index that refers to index in attachment list passes into VkRenderPassCreateInfo
+  VkAttachmentReference colorAttachmentReference = {};
+  colorAttachmentReference.attachment = 0;
+  colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+  //#attaching subpass: information about particular subpass
+  VkSubpassDescription subPassDescription = {};
+  subPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; //? binding to Graphics Pipeline
+  subPassDescription.colorAttachmentCount = 1;
+  subPassDescription.pColorAttachments = &colorAttachmentReference;
+  //* need to to handle layout transition using subpass dependencies
+  std::array<VkSubpassDependency,2> subpassDependencies{};
+  //$ Convertion From VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+  //*transition must happen after
+  subpassDependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+  subpassDependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+  subpassDependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  //*transition must happen before
+  subpassDependencies[0].dstSubpass = 0;
+  subpassDependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  subpassDependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+  //$ Convertion From VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+  //*transition must happen after
+  subpassDependencies[1].srcSubpass = 0;
+  subpassDependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  subpassDependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  //*transition must happen before
+  subpassDependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+  subpassDependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+  subpassDependencies[1].dstAccessMask =  VK_ACCESS_MEMORY_READ_BIT;
+
+
+  //*Render Pass Create Info
   VkRenderPassCreateInfo renderpassCreateInfo = {};
   renderpassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderpassCreateInfo.attachmentCount = 1;
   renderpassCreateInfo.pAttachments = &colorAttachment;
+  renderpassCreateInfo.subpassCount = 1;
+  renderpassCreateInfo.pSubpasses = &subPassDescription;
+  renderpassCreateInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
+  renderpassCreateInfo.pDependencies = subpassDependencies.data();
+  if (vkCreateRenderPass(this->Context.Device.logicalDevice,&renderpassCreateInfo,nullptr,))
 
 
 }
