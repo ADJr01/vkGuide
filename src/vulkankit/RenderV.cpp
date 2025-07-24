@@ -717,6 +717,12 @@ void RenderV::createCommandBuffers() {
   }
 }
 
+void RenderV::recordCommands() {
+  VkCommandBufferBeginInfo cmdBeginInfo = {};
+  cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+}
+
 
 
 

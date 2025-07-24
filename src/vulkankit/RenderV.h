@@ -61,6 +61,7 @@ class RenderV {
   void createFrameBuffers();
   void createCMDPool();
   void createCommandBuffers();
+  void recordCommands();
   // ? Getters
   VkApplicationInfo getAppInfo(std::string appName, std::string engineName);
   void getPhysicalDevice();
