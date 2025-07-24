@@ -671,6 +671,11 @@ void RenderV::createRenderPass() {
 
 }
 
+void RenderV::createFrameBuffers() {
+
+}
+
+
 
 
 int RenderV::init(GLFWwindow *window) {

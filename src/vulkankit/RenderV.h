@@ -27,6 +27,7 @@ private:
     VkPipelineLayout pipelineLayout;
     VkRenderPass renderPass;
     std::vector<SwapChainImage> swapChainImages;
+    std::vector<VkFramebuffer> swapChainFrameBuffers;
     const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -53,6 +54,7 @@ private:
     void createGraphicsPipeline();
     void createRenderPass();
     VkImageView createImageViews(VkImage img,VkFormat format,VkImageAspectFlags aspectFlags);
+    void createFrameBuffers();
     // ? Getters
     VkApplicationInfo getAppInfo(std::string appName,std::string engineName);
     void getPhysicalDevice();
