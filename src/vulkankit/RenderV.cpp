@@ -768,11 +768,11 @@ int RenderV::init(GLFWwindow *window) {
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createCMDPool();
-   // this->createCommandBuffers();
-    //this->recordCommands();
+    this->createCommandBuffers();
+    this->recordCommands();
   } catch (const std::runtime_error &e) {
     const auto errorMessage = e.what();
-    std::cerr << "Runtimer Error: " << errorMessage << std::endl;
+    std::cerr << "Runtime Error: " << errorMessage << std::endl;
     return EXIT_FAILURE;
   }
 
