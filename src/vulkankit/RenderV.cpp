@@ -718,16 +718,34 @@ void RenderV::createCommandBuffers() {
 }
 
 void RenderV::recordCommands() {
+  VkClearValue clearValue[]={
+    {0.25,0.5,0.65,1.0}
+  };
   const auto cmdBufferSize = this->swapChainImages.size();
   VkCommandBufferBeginInfo cmdBeginInfo = {};
   cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
   //* info about begin render pass
-  for (int i = 0; i < cmdBufferSize; ++i) {
+  VkRenderPassBeginInfo renderPassBeginInfo = {};
+  renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  renderPassBeginInfo.renderPass = this->renderPass;
+  renderPassBeginInfo.renderArea.offset = {0,0};
+  renderPassBeginInfo.renderArea.extent = this->swapChainExtent;
+  renderPassBeginInfo.clearValueCount = 1;
+  renderPassBeginInfo.pClearValues = clearValue;
+
+  for (int i = 0; i < cmdBufferSize; i++) {
+    renderPassBeginInfo.framebuffer = this->swapChainFrameBuffers[i];
     vkBeginCommandBuffer(this->commandBuffers[i],&cmdBeginInfo)!=VK_SUCCESS?
     throw std::runtime_error("failed to begin recording command buffers"):0;
     //*do tasks
-
+    //? init render pass
+    vkCmdBeginRenderPass(this->commandBuffers[i],&renderPassBeginInfo,VK_SUBPASS_CONTENTS_INLINE);
+      //* Bind pipeline with renderpass
+      vkCmdBindPipeline(this->commandBuffers[i],VK_PIPELINE_BIND_POINT_GRAPHICS,this->graphicsPipeline);
+      //?Execute Pipeline
+      vkCmdDraw(this->commandBuffers[i],3,1,0,0);
+    vkCmdEndRenderPass(this->commandBuffers[i]);
     vkEndCommandBuffer(this->commandBuffers[i])!=VK_SUCCESS?
     throw std::runtime_error("failed to stop recording command buffers"):0;
   }
@@ -806,3 +824,5 @@ std::vector<char> RenderV::parseSpirV(const std::string &file_path) {
   }
   return buffer;
 }
+
+
