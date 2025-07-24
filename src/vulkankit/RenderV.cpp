@@ -693,6 +693,32 @@ void RenderV::createFrameBuffers() {
 }
 
 
+void RenderV::createCMDPool() {
+  VkCommandPoolCreateInfo poolCreateInfo;
+  poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+  poolCreateInfo.queueFamilyIndex =  getQueueFamilies(this->Context.Device.physicalDevice).graphicsFamily;
+  //?Create Graphics Queue Family Command Pool
+  if (vkCreateCommandPool(this->Context.Device.logicalDevice,&poolCreateInfo,nullptr,&this->graphicsCMDPool)!=VK_SUCCESS) {
+    throw std::runtime_error("Failed to create graphics command pool");
+  }
+}
+
+void RenderV::createCommandBuffers() {
+  const auto size_of_frame_buffer = static_cast<uint32_t>(this->swapChainImages.size());
+  this->commandBuffers.resize(size_of_frame_buffer);
+  VkCommandBufferAllocateInfo cmdAllocateInfo = {};
+  cmdAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  cmdAllocateInfo.commandPool = this->graphicsCMDPool;
+  cmdAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; //* Execution order:VK_COMMAND_BUFFER_LEVEL_PRIMARY  signature that it will be executed by queue not other command buffer
+  cmdAllocateInfo.commandBufferCount = size_of_frame_buffer;
+
+  if (vkAllocateCommandBuffers(this->Context.Device.logicalDevice,&cmdAllocateInfo,this->commandBuffers.data())!=VK_SUCCESS) {
+    throw std::runtime_error("Failed to allocate command buffers");
+  }
+}
+
+
+
 
 
 int RenderV::init(GLFWwindow *window) {
@@ -715,6 +741,8 @@ int RenderV::init(GLFWwindow *window) {
 }
 
 RenderV::~RenderV() {
+
+  vkDestroyCommandPool(this->Context.Device.logicalDevice,this->graphicsCMDPool,nullptr);
   for (auto framebuffer : this->swapChainFrameBuffers) {
     vkDestroyFramebuffer(this->Context.Device.logicalDevice,framebuffer,nullptr);
 
