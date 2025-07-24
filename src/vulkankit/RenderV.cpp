@@ -672,7 +672,24 @@ void RenderV::createRenderPass() {
 }
 
 void RenderV::createFrameBuffers() {
-  this->swapChainFrameBuffers.resize(this->swapChainImages.size());
+  const auto sizeOfFrameBuffer = this->swapChainImages.size();
+  this->swapChainFrameBuffers.resize(sizeOfFrameBuffer);
+  int i = 0;
+  for (auto& image : this->swapChainImages) {
+    std::array<VkImageView,1> attachments = {image.imageView};
+    VkFramebufferCreateInfo framebufferCreateInfo = {};
+    framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferCreateInfo.renderPass = this->renderPass;
+    framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    framebufferCreateInfo.pAttachments = attachments.data();
+    framebufferCreateInfo.width = this->swapChainExtent.width;
+    framebufferCreateInfo.height = this->swapChainExtent.height;
+    framebufferCreateInfo.layers = 1;
+    if (vkCreateFramebuffer(this->Context.Device.logicalDevice,&framebufferCreateInfo,nullptr,&this->swapChainFrameBuffers[i])!=VK_SUCCESS) {
+      throw std::runtime_error("Failed to create framebuffer");
+    };
+    i++;
+  }
 }
 
 
@@ -698,6 +715,10 @@ int RenderV::init(GLFWwindow *window) {
 }
 
 RenderV::~RenderV() {
+  for (auto framebuffer : this->swapChainFrameBuffers) {
+    vkDestroyFramebuffer(this->Context.Device.logicalDevice)
+
+  }
   vkDestroyPipeline(this->Context.Device.logicalDevice,this->graphicsPipeline,nullptr);
   vkDestroyRenderPass(this->Context.Device.logicalDevice,this->renderPass,nullptr);
   vkDestroyPipelineLayout(this->Context.Device.logicalDevice,this->pipelineLayout,nullptr);
