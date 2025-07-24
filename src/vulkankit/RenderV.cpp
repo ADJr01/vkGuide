@@ -695,7 +695,7 @@ void RenderV::createFrameBuffers() {
 
 void RenderV::createCMDPool() {
   const auto queueFamilyIndicies = getQueueFamilies(this->Context.Device.physicalDevice);
-  VkCommandPoolCreateInfo poolCreateInfo = {}
+  VkCommandPoolCreateInfo poolCreateInfo = {};
   poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   poolCreateInfo.queueFamilyIndex =  queueFamilyIndicies.graphicsFamily;
   //?Create Graphics Queue Family Command Pool
