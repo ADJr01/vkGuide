@@ -718,9 +718,19 @@ void RenderV::createCommandBuffers() {
 }
 
 void RenderV::recordCommands() {
+  const auto cmdBufferSize = this->swapChainImages.size();
   VkCommandBufferBeginInfo cmdBeginInfo = {};
   cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+  //* info about begin render pass
+  for (int i = 0; i < cmdBufferSize; ++i) {
+    vkBeginCommandBuffer(this->commandBuffers[i],&cmdBeginInfo)!=VK_SUCCESS?
+    throw std::runtime_error("failed to begin recording command buffers"):0;
+    //*do tasks
 
+    vkEndCommandBuffer(this->commandBuffers[i])!=VK_SUCCESS?
+    throw std::runtime_error("failed to stop recording command buffers"):0;
+  }
 }
 
 
