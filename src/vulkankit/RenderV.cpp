@@ -694,9 +694,10 @@ void RenderV::createFrameBuffers() {
 
 
 void RenderV::createCMDPool() {
-  VkCommandPoolCreateInfo poolCreateInfo;
+  const auto queueFamilyIndicies = getQueueFamilies(this->Context.Device.physicalDevice);
+  VkCommandPoolCreateInfo poolCreateInfo = {}
   poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  poolCreateInfo.queueFamilyIndex =  getQueueFamilies(this->Context.Device.physicalDevice).graphicsFamily;
+  poolCreateInfo.queueFamilyIndex =  queueFamilyIndicies.graphicsFamily;
   //?Create Graphics Queue Family Command Pool
   if (vkCreateCommandPool(this->Context.Device.logicalDevice,&poolCreateInfo,nullptr,&this->graphicsCMDPool)!=VK_SUCCESS) {
     throw std::runtime_error("Failed to create graphics command pool");
@@ -765,6 +766,10 @@ int RenderV::init(GLFWwindow *window) {
     this->createSwapChain();
     this->createRenderPass();
     this->createGraphicsPipeline();
+    this->createFrameBuffers();
+    this->createCMDPool();
+   // this->createCommandBuffers();
+    //this->recordCommands();
   } catch (const std::runtime_error &e) {
     const auto errorMessage = e.what();
     std::cerr << "Runtimer Error: " << errorMessage << std::endl;
