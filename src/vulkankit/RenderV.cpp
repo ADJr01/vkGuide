@@ -672,7 +672,7 @@ void RenderV::createRenderPass() {
 }
 
 void RenderV::createFrameBuffers() {
-
+  this->swapChainFrameBuffers.resize(this->swapChainImages.size());
 }
 
 
