@@ -716,7 +716,7 @@ int RenderV::init(GLFWwindow *window) {
 
 RenderV::~RenderV() {
   for (auto framebuffer : this->swapChainFrameBuffers) {
-    vkDestroyFramebuffer(this->Context.Device.logicalDevice)
+    vkDestroyFramebuffer(this->Context.Device.logicalDevice,framebuffer,nullptr);
 
   }
   vkDestroyPipeline(this->Context.Device.logicalDevice,this->graphicsPipeline,nullptr);
