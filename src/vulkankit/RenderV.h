@@ -53,7 +53,7 @@ class RenderV {
   void createLogicalDevice();
   void createSurface();
   void createSwapChain();
-  VkShaderModule createShaderModule(std::string shaderPath);
+  VkShaderModule createShaderModule(std::string shaderPath) const;
   void createGraphicsPipeline();
   void createRenderPass();
   VkImageView createImageViews(VkImage img, VkFormat format,
@@ -61,7 +61,7 @@ class RenderV {
   void createFrameBuffers();
   void createCMDPool();
   void createCommandBuffers();
-  void recordCommands();
+  void recordCommands() const;
   // ? Getters
   VkApplicationInfo getAppInfo(std::string appName, std::string engineName);
   void getPhysicalDevice();
@@ -87,6 +87,7 @@ class RenderV {
   RenderV() = default;
   ~RenderV();
   int init(GLFWwindow* window);
+  void draw();
 };
 
 #endif  // RENDERV_H

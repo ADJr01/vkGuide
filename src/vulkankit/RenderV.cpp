@@ -595,7 +595,7 @@ void RenderV::createGraphicsPipeline() {
 
 }
 
-VkShaderModule RenderV::createShaderModule(std::string shaderPath) {
+VkShaderModule RenderV::createShaderModule(std::string shaderPath) const {
   const auto shader = RenderV::parseSpirV(shaderPath);
   VkShaderModuleCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -718,7 +718,7 @@ void RenderV::createCommandBuffers() {
   }
 }
 
-void RenderV::recordCommands() {
+void RenderV::recordCommands() const {
   VkClearValue clearValue[]={
     {0.25,0.5,0.65,1.0}
   };
@@ -778,6 +778,17 @@ int RenderV::init(GLFWwindow *window) {
 
   return EXIT_SUCCESS;
 }
+
+void RenderV::draw() {
+  /*
+    TODO:
+    1. Get Next Available Image to draw and set something to signal when we're finished with the image (semaphore)
+    2. Submit Command Buffer to queue for execution, make sure it waits for the image to be signalled as available before drawing
+       and signal before drawing
+    3. Present image to screen when it signals finished rendering
+   */
+}
+
 
 RenderV::~RenderV() {
 
