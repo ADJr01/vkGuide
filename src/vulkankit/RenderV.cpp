@@ -803,6 +803,22 @@ void RenderV::draw() {
   submitInfo.pCommandBuffers = &this->commandBuffers[imageIndex];
   submitInfo.signalSemaphoreCount = 1; // ? Number of semaphores to be signales
   submitInfo.pSignalSemaphores = &this->renderFinishedSemaphore;
+  //?submit command buffer to queue
+  if (vkQueueSubmit(this->graphicsQueue,1,&submitInfo,VK_NULL_HANDLE)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to submit command buffer submission");
+  }
+
+  //#3 Render Image to scene
+  VkPresentInfoKHR presentInfo = {};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1; // ? Numbers of semaphores to wait on
+  presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore;
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = &this->swapChain;
+  presentInfo.pImageIndices = &imageIndex; //* index of image that to be drawn
+  if (vkQueuePresentKHR(this->graphicsQueue,&presentInfo)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to present");
+  }
 }
 
 
