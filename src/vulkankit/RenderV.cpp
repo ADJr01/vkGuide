@@ -770,6 +770,7 @@ int RenderV::init(GLFWwindow *window) {
     this->createCMDPool();
     this->createCommandBuffers();
     this->recordCommands();
+    this->initSemaphores();
   } catch (const std::runtime_error &e) {
     const auto errorMessage = e.what();
     std::cerr << "Runtime Error: " << errorMessage << std::endl;
@@ -812,11 +813,11 @@ void RenderV::draw() {
   VkPresentInfoKHR presentInfo = {};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
   presentInfo.waitSemaphoreCount = 1; // ? Numbers of semaphores to wait on
-  presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore;
-  presentInfo.swapchainCount = 1; //* Number of
+  presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore; //* wait for this semaphores
+  presentInfo.swapchainCount = 1; //* Number of swapchain to present to
   presentInfo.pSwapchains = &this->swapChain; // * swap chain where image will be presented
   presentInfo.pImageIndices = &imageIndex; //* index of image that to be drawn
-  if (vkQueuePresentKHR(this->graphicsQueue,&presentInfo)!=VK_SUCCESS) {
+  if (vkQueuePresentKHR(this->presentationQueue,&presentInfo)!=VK_SUCCESS) {
     throw std::runtime_error("failed to present");
   }
 }

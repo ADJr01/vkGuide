@@ -22,6 +22,7 @@ int main() {
         if (renderV.init(Window) == EXIT_FAILURE) {
             return EXIT_FAILURE;
         }
+        renderV.draw();
 
         while (!glfwWindowShouldClose(Window)) {
             glfwPollEvents();
