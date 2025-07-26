@@ -787,6 +787,9 @@ void RenderV::draw() {
        and signal before drawing
     3. Present image to screen when it signals finished rendering
    */
+  VkPipelineStageFlags stageFlags[] = {
+    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+  };
   //#1: GEt Next Image to be drawn and get signal semaphore when ready to be drawn
   uint32_t imageIndex;
   vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore,VK_NULL_HANDLE,&imageIndex);
@@ -794,7 +797,12 @@ void RenderV::draw() {
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
   submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = &this->imageAvailableSemaphore;
+  submitInfo.pWaitSemaphores = &this->imageAvailableSemaphore; //? wait until imageAvailableSemaphore is set to true
+  submitInfo.pWaitDstStageMask = stageFlags; // ? stage list when semaphores will be checked
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &this->commandBuffers[imageIndex];
+  submitInfo.signalSemaphoreCount = 1; // ? Number of semaphores to be signales
+  submitInfo.pSignalSemaphores = &this->renderFinishedSemaphore;
 }
 
 
