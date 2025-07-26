@@ -787,11 +787,29 @@ void RenderV::draw() {
        and signal before drawing
     3. Present image to screen when it signals finished rendering
    */
+  //#1: GEt Next Image
+  uint32_t imageIndex;
+  vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore,VK_NULL_HANDLE,&imageIndex);
 }
 
 
-RenderV::~RenderV() {
+void RenderV::initSemaphores() {
+  //semaphore creation info
+  VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+  semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore)!=VK_SUCCESS ||
+  vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore)!=VK_SUCCESS
+  ) {
+    throw std::runtime_error("failed to create Semaphores");
+  }
 
+}
+
+
+
+RenderV::~RenderV() {
+  vkDestroySemaphore(this->Context.Device.logicalDevice,this->renderFinishedSemaphore,nullptr);
+  vkDestroySemaphore(this->Context.Device.logicalDevice,this->imageAvailableSemaphore,nullptr);
   vkDestroyCommandPool(this->Context.Device.logicalDevice,this->graphicsCMDPool,nullptr);
   for (auto framebuffer : this->swapChainFrameBuffers) {
     vkDestroyFramebuffer(this->Context.Device.logicalDevice,framebuffer,nullptr);

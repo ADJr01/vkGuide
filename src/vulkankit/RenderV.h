@@ -44,6 +44,10 @@ class RenderV {
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
 
+  //* Synchronization
+  VkSemaphore imageAvailableSemaphore;
+  VkSemaphore renderFinishedSemaphore;
+
   //? other utility
   static std::vector<char> parseSpirV(const std::string& file_path);
 
@@ -61,6 +65,8 @@ class RenderV {
   void createFrameBuffers();
   void createCMDPool();
   void createCommandBuffers();
+  void initSemaphores();
+
   void recordCommands() const;
   // ? Getters
   VkApplicationInfo getAppInfo(std::string appName, std::string engineName);
