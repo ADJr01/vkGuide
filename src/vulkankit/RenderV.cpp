@@ -813,8 +813,8 @@ void RenderV::draw() {
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
   presentInfo.waitSemaphoreCount = 1; // ? Numbers of semaphores to wait on
   presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore;
-  presentInfo.swapchainCount = 1;
-  presentInfo.pSwapchains = &this->swapChain;
+  presentInfo.swapchainCount = 1; //* Number of
+  presentInfo.pSwapchains = &this->swapChain; // * swap chain where image will be presented
   presentInfo.pImageIndices = &imageIndex; //* index of image that to be drawn
   if (vkQueuePresentKHR(this->graphicsQueue,&presentInfo)!=VK_SUCCESS) {
     throw std::runtime_error("failed to present");
