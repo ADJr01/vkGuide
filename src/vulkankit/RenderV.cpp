@@ -787,9 +787,14 @@ void RenderV::draw() {
        and signal before drawing
     3. Present image to screen when it signals finished rendering
    */
-  //#1: GEt Next Image
+  //#1: GEt Next Image to be drawn and get signal semaphore when ready to be drawn
   uint32_t imageIndex;
   vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore,VK_NULL_HANDLE,&imageIndex);
+  //#2: Submit Command buffer to queue
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = &this->imageAvailableSemaphore;
 }
 
 
