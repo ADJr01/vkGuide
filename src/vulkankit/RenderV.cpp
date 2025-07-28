@@ -805,7 +805,7 @@ void RenderV::draw() {
   submitInfo.signalSemaphoreCount = 1; // ? Number of semaphores to be signales
   submitInfo.pSignalSemaphores = &this->renderFinishedSemaphore[this->currentFrame];
   //?submit command buffer to queue
-  if (vkQueueSubmit(this->graphicsQueue,1,&submitInfo,this->drawFences[this->currentFrame])!=VK_SUCCESS) {
+  if (vkQueueSubmit(this->graphicsQueue,1,&submitInfo,this->drawFences[this->currentFrame])!=VK_SUCCESS) { // ? when drawing will complete then signal the fence
     throw std::runtime_error("failed to submit command buffer submission");
   }
 
