@@ -840,12 +840,11 @@ void RenderV::initSemaphores() {
 
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
-          vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS){
-          throw std::runtime_error("Failed to create Semaphores");
+          vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS ||
+          vkCreateFence(this->Context.Device.logicalDevice,&fenceCreateInfo,nullptr,&this->drawFences[i])!=VK_SUCCESS
+          ){
+          throw std::runtime_error("Failed to create Semaphores or Fence");
         }
-    if (vkCreateFence(this->Context.Device.logicalDevice,&fenceCreateInfo,nullptr,&this->drawFences[i])!=VK_SUCCESS) {
-      throw std::runtime_error("Failed to create Fence");
-    }
   }
 
 }
@@ -857,6 +856,7 @@ RenderV::~RenderV() {
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(this->Context.Device.logicalDevice,this->renderFinishedSemaphore[i],nullptr);
     vkDestroySemaphore(this->Context.Device.logicalDevice,this->imageAvailableSemaphore[i],nullptr);
+    vkDestroyFence(this->Context.Device.logicalDevice,this->drawFences[i],nullptr);
   }
   vkDestroyCommandPool(this->Context.Device.logicalDevice,this->graphicsCMDPool,nullptr);
   for (auto framebuffer : this->swapChainFrameBuffers) {
