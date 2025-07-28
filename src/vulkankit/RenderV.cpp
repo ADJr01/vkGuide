@@ -795,6 +795,7 @@ void RenderV::draw() {
   uint32_t imageIndex;
   vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore[this->currentFrame],VK_NULL_HANDLE,&imageIndex);
   vkWaitForFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame],VK_TRUE,std::numeric_limits<uint64_t>::max());
+  vkResetFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame]);
   //#2: Submit Command buffer to queue
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -838,6 +839,7 @@ void RenderV::initSemaphores() {
 
   VkFenceCreateInfo fenceCreateInfo = {};
   fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
