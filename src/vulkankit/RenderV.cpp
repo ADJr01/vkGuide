@@ -179,7 +179,6 @@ void RenderV::createSwapChain() {
   // getting swapchain info from device
   SwapChainInfo swapChainInfo =
       getSwapChainInfo(this->Context.Device.physicalDevice);
-  assert(swapChainInfo.surfaceCapabilities.maxImageCount > 0);
   // * 1. Choose Best Format
   VkSurfaceFormatKHR surfaceFormat =
       this->getBestSurfaceFormat(swapChainInfo.surfaceFormats);
@@ -191,8 +190,9 @@ void RenderV::createSwapChain() {
       this->chooseSwapExt(swapChainInfo.surfaceCapabilities);
   auto imageCount = static_cast<uint32_t>(
       swapChainInfo.surfaceCapabilities.minImageCount + 1);
-  if (swapChainInfo.surfaceCapabilities.maxImageCount < imageCount)
+  if (swapChainInfo.surfaceCapabilities.maxImageCount>0 && swapChainInfo.surfaceCapabilities.maxImageCount < imageCount) {
     imageCount = swapChainInfo.surfaceCapabilities.maxImageCount;
+  }
   // let's create swapChain Create info
   VkSwapchainCreateInfoKHR swapChainCreateInfo = {};
   swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
