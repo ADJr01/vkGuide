@@ -791,11 +791,14 @@ void RenderV::draw() {
   VkPipelineStageFlags stageFlags[] = {
     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
   };
+
+  vkWaitForFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame],VK_TRUE,std::numeric_limits<uint64_t>::max());
+  vkResetFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame]);
+
   //#1: GEt Next Image to be drawn and get signal semaphore when ready to be drawn
   uint32_t imageIndex;
   vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore[this->currentFrame],VK_NULL_HANDLE,&imageIndex);
-  vkWaitForFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame],VK_TRUE,std::numeric_limits<uint64_t>::max());
-  vkResetFences(this->Context.Device.logicalDevice,1,&this->drawFences[this->currentFrame]);
+
   //#2: Submit Command buffer to queue
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
