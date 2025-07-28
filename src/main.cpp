@@ -5,7 +5,7 @@
 
 GLFWwindow* Window;
 RenderV renderV;
-void initWindow(std::string title="Vulkan Window",int width=800,int height=600) {
+void initWindow(std::string title="Vulkan Window",int width=1320,int height=768) {
     //glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     if (!glfwInit()) {
         throw std::runtime_error("GLFW initialization failed");
@@ -23,7 +23,7 @@ void initWindow(std::string title="Vulkan Window",int width=800,int height=600) 
 }
 int main() {
     try {
-        initWindow("Vulkan Triangle",800,600);
+        initWindow("Vulkan Triangle",1320,768);
         if (renderV.init(Window) == EXIT_FAILURE) return EXIT_FAILURE;
         renderV.draw();
         while (!glfwWindowShouldClose(Window)) {
