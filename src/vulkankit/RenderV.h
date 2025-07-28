@@ -49,6 +49,7 @@ class RenderV {
   //* Synchronization
   std::vector<VkSemaphore> imageAvailableSemaphore;
   std::vector<VkSemaphore> renderFinishedSemaphore;
+  std::vector<VkFence> drawFences;
 
   //? other utility
   static std::vector<char> parseSpirV(const std::string& file_path);

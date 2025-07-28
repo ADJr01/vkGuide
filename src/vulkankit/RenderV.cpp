@@ -830,14 +830,22 @@ void RenderV::draw() {
 void RenderV::initSemaphores() {
   this->imageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
   this->renderFinishedSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+  this->drawFences.resize(MAX_FRAMES_IN_FLIGHT);
   //semaphore creation info
   VkSemaphoreCreateInfo semaphoreCreateInfo = {};
   semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  VkFenceCreateInfo fenceCreateInfo = {};
+  fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
   for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
       if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
           vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS){
           throw std::runtime_error("Failed to create Semaphores");
         }
+    if (vkCreateFence(this->Context.Device.logicalDevice,&fenceCreateInfo,nullptr,&this->drawFences[i])!=VK_SUCCESS) {
+      throw std::runtime_error("Failed to create Fence");
+    }
   }
 
 }
