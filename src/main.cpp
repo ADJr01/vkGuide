@@ -32,7 +32,6 @@ int main() {
             glfwSetWindowShouldClose(Window,GLFW_TRUE);
           }
         }
-
         glfwDestroyWindow(Window);
         glfwTerminate();
     }catch (std::exception& e) {
