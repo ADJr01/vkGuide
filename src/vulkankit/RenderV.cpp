@@ -793,17 +793,17 @@ void RenderV::draw() {
   };
   //#1: GEt Next Image to be drawn and get signal semaphore when ready to be drawn
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore,VK_NULL_HANDLE,&imageIndex);
+  vkAcquireNextImageKHR(this->Context.Device.logicalDevice,this->swapChain,std::numeric_limits<uint64_t>::max(),this->imageAvailableSemaphore[this->currentFrame],VK_NULL_HANDLE,&imageIndex);
   //#2: Submit Command buffer to queue
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
   submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = &this->imageAvailableSemaphore; //? wait until imageAvailableSemaphore is set to true
+  submitInfo.pWaitSemaphores = &this->imageAvailableSemaphore[this->currentFrame]; //? wait until imageAvailableSemaphore is set to true
   submitInfo.pWaitDstStageMask = stageFlags; // ? stage list when semaphores will be checked
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &this->commandBuffers[imageIndex];
   submitInfo.signalSemaphoreCount = 1; // ? Number of semaphores to be signales
-  submitInfo.pSignalSemaphores = &this->renderFinishedSemaphore;
+  submitInfo.pSignalSemaphores = &this->renderFinishedSemaphore[this->currentFrame];
   //?submit command buffer to queue
   if (vkQueueSubmit(this->graphicsQueue,1,&submitInfo,VK_NULL_HANDLE)!=VK_SUCCESS) {
     throw std::runtime_error("failed to submit command buffer submission");
@@ -813,24 +813,31 @@ void RenderV::draw() {
   VkPresentInfoKHR presentInfo = {};
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
   presentInfo.waitSemaphoreCount = 1; // ? Numbers of semaphores to wait on
-  presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore; //* wait for this semaphores
+  presentInfo.pWaitSemaphores = &this->renderFinishedSemaphore[this->currentFrame]; //* wait for this semaphores
   presentInfo.swapchainCount = 1; //* Number of swapchain to present to
   presentInfo.pSwapchains = &this->swapChain; // * swap chain where image will be presented
   presentInfo.pImageIndices = &imageIndex; //* index of image that to be drawn
   if (vkQueuePresentKHR(this->presentationQueue,&presentInfo)!=VK_SUCCESS) {
     throw std::runtime_error("failed to present");
   }
+
+  //* Get Next Frame
+  currentFrame++;
+  if (currentFrame>=MAX_FRAMES_IN_FLIGHT)currentFrame=0;
 }
 
 
 void RenderV::initSemaphores() {
+  this->imageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+  this->renderFinishedSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
   //semaphore creation info
   VkSemaphoreCreateInfo semaphoreCreateInfo = {};
   semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-  if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore)!=VK_SUCCESS ||
-  vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore)!=VK_SUCCESS
-  ) {
-    throw std::runtime_error("failed to create Semaphores");
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+      if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
+          vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS){
+          throw std::runtime_error("Failed to create Semaphores");
+        }
   }
 
 }
@@ -839,8 +846,10 @@ void RenderV::initSemaphores() {
 
 RenderV::~RenderV() {
   vkDeviceWaitIdle(this->Context.Device.logicalDevice); //! wait until everything is free.
-  vkDestroySemaphore(this->Context.Device.logicalDevice,this->renderFinishedSemaphore,nullptr);
-  vkDestroySemaphore(this->Context.Device.logicalDevice,this->imageAvailableSemaphore,nullptr);
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    vkDestroySemaphore(this->Context.Device.logicalDevice,this->renderFinishedSemaphore[i],nullptr);
+    vkDestroySemaphore(this->Context.Device.logicalDevice,this->imageAvailableSemaphore[i],nullptr);
+  }
   vkDestroyCommandPool(this->Context.Device.logicalDevice,this->graphicsCMDPool,nullptr);
   for (auto framebuffer : this->swapChainFrameBuffers) {
     vkDestroyFramebuffer(this->Context.Device.logicalDevice,framebuffer,nullptr);

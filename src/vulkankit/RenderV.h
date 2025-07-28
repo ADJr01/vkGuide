@@ -5,6 +5,7 @@
 #ifndef RENDERV_H
 #define RENDERV_H
 #define GLFW_INCLUDE_VULKAN
+#define MAX_FRAMES_IN_FLIGHT 2
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -18,6 +19,7 @@ const bool enable_validation_layers = true;
 
 class RenderV {
  private:
+  int currentFrame = 0;
   GLFWwindow* Window;
   //* vulkan Components
   VkContext Context;
@@ -45,8 +47,8 @@ class RenderV {
   VkExtent2D swapChainExtent;
 
   //* Synchronization
-  VkSemaphore imageAvailableSemaphore;
-  VkSemaphore renderFinishedSemaphore;
+  std::vector<VkSemaphore> imageAvailableSemaphore;
+  std::vector<VkSemaphore> renderFinishedSemaphore;
 
   //? other utility
   static std::vector<char> parseSpirV(const std::string& file_path);
