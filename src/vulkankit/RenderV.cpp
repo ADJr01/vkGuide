@@ -838,6 +838,7 @@ void RenderV::initSemaphores() {
 
 
 RenderV::~RenderV() {
+  vkDeviceWaitIdle(this->Context.Device.logicalDevice); //! wait until everything is free.
   vkDestroySemaphore(this->Context.Device.logicalDevice,this->renderFinishedSemaphore,nullptr);
   vkDestroySemaphore(this->Context.Device.logicalDevice,this->imageAvailableSemaphore,nullptr);
   vkDestroyCommandPool(this->Context.Device.logicalDevice,this->graphicsCMDPool,nullptr);
