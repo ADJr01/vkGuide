@@ -5,7 +5,7 @@
 #ifndef RENDERV_H
 #define RENDERV_H
 #define GLFW_INCLUDE_VULKAN
-#define MAX_FRAMES_IN_FLIGHT 3
+#define MAX_FRAMES_IN_FLIGHT 2
 #include <GLFW/glfw3.h>
 
 #include <iostream>

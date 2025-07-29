@@ -25,12 +25,13 @@ int main() {
     try {
         initWindow("Vulkan Triangle",1320,768);
         if (renderV.init(Window) == EXIT_FAILURE) return EXIT_FAILURE;
-        renderV.draw();
+
         while (!glfwWindowShouldClose(Window)) {
             glfwPollEvents();
           if (glfwGetKey(Window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(Window,GLFW_TRUE);
           }
+          renderV.draw();
         }
         glfwDestroyWindow(Window);
         glfwTerminate();
