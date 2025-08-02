@@ -753,31 +753,27 @@ void RenderV::recordCommands() const {
 }
 
 
+void RenderV::initSemaphores() {
+  this->imageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+  this->renderFinishedSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
+  this->drawFences.resize(MAX_FRAMES_IN_FLIGHT);
+  //semaphore creation info
+  VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+  semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
+  VkFenceCreateInfo fenceCreateInfo = {};
+  fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-
-int RenderV::init(GLFWwindow *window) {
-  try {
-    this->Window = window;
-    this->createVulkanInstance();
-    this->createSurface();
-    this->getPhysicalDevice();
-    this->createLogicalDevice();
-    this->createSwapChain();
-    this->createRenderPass();
-    this->createGraphicsPipeline();
-    this->createFrameBuffers();
-    this->createCMDPool();
-    this->createCommandBuffers();
-    this->recordCommands();
-    this->initSemaphores();
-  } catch (const std::runtime_error &e) {
-    const auto errorMessage = e.what();
-    std::cerr << "Runtime Error: " << errorMessage << std::endl;
-    return EXIT_FAILURE;
+  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+      if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
+          vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS ||
+          vkCreateFence(this->Context.Device.logicalDevice,&fenceCreateInfo,nullptr,&this->drawFences[i])!=VK_SUCCESS
+          ){
+          throw std::runtime_error("Failed to create Semaphores or Fence");
+        }
   }
 
-  return EXIT_SUCCESS;
 }
 
 void RenderV::draw() {
@@ -832,28 +828,31 @@ void RenderV::draw() {
 }
 
 
-void RenderV::initSemaphores() {
-  this->imageAvailableSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
-  this->renderFinishedSemaphore.resize(MAX_FRAMES_IN_FLIGHT);
-  this->drawFences.resize(MAX_FRAMES_IN_FLIGHT);
-  //semaphore creation info
-  VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-  semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-  VkFenceCreateInfo fenceCreateInfo = {};
-  fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-  for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-      if (vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->imageAvailableSemaphore[i])!=VK_SUCCESS ||
-          vkCreateSemaphore(this->Context.Device.logicalDevice,&semaphoreCreateInfo,nullptr,&this->renderFinishedSemaphore[i])!=VK_SUCCESS ||
-          vkCreateFence(this->Context.Device.logicalDevice,&fenceCreateInfo,nullptr,&this->drawFences[i])!=VK_SUCCESS
-          ){
-          throw std::runtime_error("Failed to create Semaphores or Fence");
-        }
+int RenderV::init(GLFWwindow *window) {
+  try {
+    this->Window = window;
+    this->createVulkanInstance();
+    this->createSurface();
+    this->getPhysicalDevice();
+    this->createLogicalDevice();
+    this->createSwapChain();
+    this->createRenderPass();
+    this->createGraphicsPipeline();
+    this->createFrameBuffers();
+    this->createCMDPool();
+    this->createCommandBuffers();
+    this->recordCommands();
+    this->initSemaphores();
+  } catch (const std::runtime_error &e) {
+    const auto errorMessage = e.what();
+    std::cerr << "Runtime Error: " << errorMessage << std::endl;
+    return EXIT_FAILURE;
   }
 
+  return EXIT_SUCCESS;
 }
+
+
 
 
 
